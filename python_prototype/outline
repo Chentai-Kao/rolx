@@ -1,0 +1,44 @@
+feature extraction
+  neighborhood features
+    local features
+      - node degree
+        (if directed graph, include in-degree and out-degree)
+        (if weighted graph, it's weighted version)
+    egonet features
+      - # within-egonet edges
+      - # around-egonet edges
+  recursive features
+    set threshold s = 0
+    loop
+      generate recursive feature (for all features)
+        - mean
+        - sum
+      prune
+        vertical logarithmic binning (size p=0.5)
+          - feature value -> integer (range 0 ~ log_2 |V|)
+        construct feature-graph (s-friend)
+          - s-friend: all vertex agree within threshold s
+        summarize connected components
+          - use the simpler feature
+        if no retained feature -> exit
+      increment s by 1
+    endloop
+  return node-feature matrix V
+    - n nodes, f features each
+    - record all features that are retained sometime
+
+feature grouping
+  for r = 1:10
+    rank r approximation: V = GF
+      - Dimension (V: n x f, G: n x r, F: r x f)
+      - meaning:
+          row of G: node's membership in each role
+          column of F: contribution of role to feature value
+      - use r = 3 or 4
+      - Figure 2 (notation: F = WH)
+      - random initialization of W and H. Converge within 50 iterations.
+    compute description length: L = M + E
+      compute representation cost: M = br(n + f)
+      compute error of (V - GF): E = sum_ij (V log(V/GF) - V + GF)
+  endfor
+  use r roles with minimum description length
