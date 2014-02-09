@@ -27,7 +27,8 @@ def nonNegativeFactorization(v, r):
                 sumJ = 0
                 for j in range(n):
                     sumJ += w[j, a]
-                w[i, a] /= sumJ
+                if not np.allclose(sumJ, 0): # make sure sumJ != 0 for division
+                    w[i, a] /= sumJ
         # Update H
         for a in range(r):
             for u in range(f):

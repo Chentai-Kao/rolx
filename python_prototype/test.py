@@ -26,7 +26,7 @@ def computeDescriptionLength(v, g, f):
 if __name__ == '__main__':
     # read graph
     fileName = "facebook_dataset/facebook_combined.txt"
-    graph = LoadEdgeList(PNGraph, fileName, 0, 1)
+    graph = LoadEdgeList(PUNGraph, fileName, 0, 1)
 
     # feature extraction
     v = feature.extractFeatures(graph)

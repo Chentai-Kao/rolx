@@ -1,8 +1,22 @@
 import numpy as np
 
-def localFeatures(graph, v):
-    # TODO
-    pass
+def localFeatures(graph):
+    """Generate local features.
+
+    Args:
+        graph: a graph.
+    Returns:
+        An n-by-f matrix. n nodes, f features each.
+        It includes local features.
+    """
+    n = graph.GetNodes();
+    v = np.zeros((n, 1))
+    idx = 0
+    # TODO Now only works for undirected graph
+    for NI in graph.Nodes():
+        v[idx, 0] = NI.GetInDeg()
+        idx += 1
+    return v
 
 def egonetFeatures(graph, v):
     # TODO
@@ -15,14 +29,11 @@ def neighborhoodFeatures(graph):
         graph: a graph.
 
     Returns:
-        An n-by-3 matrix. n nodes, 3 features each.
-        1st feature is the local feature.
-        2nd and 3rd features are egonet features.
+        An n-by-f matrix. n nodes, f features each.
+        It includes local features and egonet features.
     """
-    n = graph.GetNodes()
-    v = np.zeros((n, 3)) # n nodes, 3 features
     # 1st feature
-    localFeatures(graph, v)
+    v = localFeatures(graph)
     # 2nd and 3rd feature
     egonetFeatures(graph, v)
     return v
@@ -40,6 +51,4 @@ def recursiveFeatures(graph, v):
 def extractFeatures(graph):
     v = neighborhoodFeatures(graph)
     recursiveFeatures(graph, v)
-
-    v = np.matrix('1 2; 3 4')
     return v
