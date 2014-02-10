@@ -23,13 +23,38 @@ def computeDescriptionLength(v, g, f):
     e = 0
     return m + e
 
+def toNumpyMatrix(v):
+    """Convert the node feature matrix to numpy matrix.
+
+    Args:
+        v: the node feature matrix.
+            A dictionary {node1: [f1, f2, ...], node2: [f1, f2, ...], ...}.
+
+    Returns:
+        The node feature matrix in an n-by-f numpy matrix.
+    """
+    n = len(v)
+    f = len(v.values()[0])
+    m = np.empty([n, f])
+    nodeIdx = 0
+    for nodeFeatures in v.values():
+        featureIdx = 0
+        for feature in nodeFeatures:
+            m[nodeIdx, featureIdx] = feature
+            featureIdx += 1
+        nodeIdx += 1
+    return m
+
 if __name__ == '__main__':
     # read graph
-    fileName = "facebook_dataset/facebook_combined.txt"
+    fileName = "facebook_dataset/facebook_combined_small.txt"
     graph = LoadEdgeList(PUNGraph, fileName, 0, 1)
 
     # feature extraction
     v = feature.extractFeatures(graph)
+
+    # convert the node feature matrix to numpy matrix
+    v = toNumpyMatrix(v)
 
     # pick number of roles with minimum error L = M + E
     errors = {}
