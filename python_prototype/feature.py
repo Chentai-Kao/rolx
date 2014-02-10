@@ -7,7 +7,7 @@ def localFeatures(graph, v):
         graph: a graph.
         v: the node feature matrix.
             A dictionary {node1: [f1, f2, ...], node2: [f1, f2, ...], ...}.
-            This matrix is modified in-place.
+            This variable is modified in-place.
     """
     # TODO Need to consider in-degree and out-degree for directed graph
     for node in graph.Nodes():
@@ -20,7 +20,7 @@ def egonetFeatures(graph, v):
         graph: a graph.
         v: the node feature matrix.
             A dictionary {node1: [f1, f2, ...], node2: [f1, f2, ...], ...}.
-            This matrix is modified in-place.
+            This variable is modified in-place.
     """
     for node in graph.Nodes():
         # construct the egonet (self + neighbors)
@@ -49,24 +49,35 @@ def neighborhoodFeatures(graph, v):
         graph: a graph.
         v: the node feature matrix.
             A dictionary {node1: [f1, f2, ...], node2: [f1, f2, ...], ...}.
-            This matrix is modified in-place.
+            This variable is modified in-place.
     """
     localFeatures(graph, v)
     egonetFeatures(graph, v)
 
-def generateRecursiveFeatures(graph, retainedFeatures):
+def generateRecursiveFeatures(graph, existingFeatures):
+    """Generate recursive features from existing features.
+
+    Args:
+        graph: a graph.
+        existingFeatures: the node feature matrix of existing features.
+            A dictionary {node1: [f1, f2, ...], node2: [f1, f2, ...], ...}.
+            This variable is modified in-place.
+    Returns:
+        the node feature matrix of generated features.
+        A dictionary {node1: [f1, f2, ...], node2: [f1, f2, ...], ...}.
+    """
     # create the dict of new features
     newFeatures = {}
-    for node in retainedFeatures.keys():
+    for node in existingFeatures.keys():
         newFeatures[node] = []
     # generate mean and sum for every feature of retained features
-    numRetainedFeatures = len(retainedFeatures.values()[0])
+    numRetainedFeatures = len(existingFeatures.values()[0])
     for featureIdx in range(numRetainedFeatures):
         for node in graph.Nodes():
             # collect feature value of neighbors
             neighborFeatures = []
             for neighbor in node.GetInEdges():
-                f = retainedFeatures[neighbor][featureIdx]
+                f = existingFeatures[neighbor][featureIdx]
                 neighborFeatures.append(f)
             # compute mean and sum
             count = len(neighborFeatures)
@@ -77,6 +88,21 @@ def generateRecursiveFeatures(graph, retainedFeatures):
             newFeatures[node.GetId()].append(featureMean)
     return newFeatures
 
+def appendFeatures(dstFeatures, srcFeatures):
+    """Append features to a node feature matrix.
+
+    Args:
+        dstFeatures: the node feature matrix to append to.
+            A dictionary {node1: [f1, f2, ...], node2: [f1, f2, ...], ...}.
+            This variable is modified in-place.
+        srcFeatures: the node feature matrix to append from.
+            Same type as dstFeatures.
+    """
+    assert set(dstFeatures.keys()) == set(srcFeatures.keys())
+    for node, features in srcFeatures.iteritems():
+        for f in features:
+            dstFeatures[node].append(f)
+
 def recursiveFeatures(graph, v):
     """Generate recursive features.
 
@@ -84,7 +110,7 @@ def recursiveFeatures(graph, v):
         graph: a graph.
         v: the node feature matrix.
             A dictionary {node1: [f1, f2, ...], node2: [f1, f2, ...], ...}.
-            This matrix is modified in-place.
+            This variable is modified in-place.
     """
     featureGraph = TUNGraph.New() # the s-friend feature graph
     s = 0 # feature similarity threshold
@@ -95,7 +121,7 @@ def recursiveFeatures(graph, v):
                 featureGraph, v, newFeatures, s)
         if len(retainedFeatures) == 0:
             break
-        addFeatures(v, retainedFeatures)
+        appendFeatures(v, retainedFeatures)
         s += 1
 
 def extractFeatures(graph):
