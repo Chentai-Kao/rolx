@@ -54,6 +54,29 @@ def neighborhoodFeatures(graph, v):
     localFeatures(graph, v)
     egonetFeatures(graph, v)
 
+def generateRecursiveFeatures(graph, retainedFeatures):
+    # create the dict of new features
+    newFeatures = {}
+    for node in retainedFeatures.keys():
+        newFeatures[node] = []
+    # generate mean and sum for every feature of retained features
+    numRetainedFeatures = len(retainedFeatures.values()[0])
+    for featureIdx in range(numRetainedFeatures):
+        for node in graph.Nodes():
+            # collect feature value of neighbors
+            neighborFeatures = []
+            for neighbor in node.GetInEdges():
+                f = retainedFeatures[neighbor][featureIdx]
+                neighborFeatures.append(f)
+            # compute mean and sum
+            count = len(neighborFeatures)
+            featureSum = sum(neighborFeatures)
+            featureMean = 0 if count == 0 else float(featureSum) / count
+            # add to new feature
+            newFeatures[node.GetId()].append(featureSum)
+            newFeatures[node.GetId()].append(featureMean)
+    return newFeatures
+
 def recursiveFeatures(graph, v):
     """Generate recursive features.
 
@@ -63,10 +86,20 @@ def recursiveFeatures(graph, v):
             A dictionary {node1: [f1, f2, ...], node2: [f1, f2, ...], ...}.
             This matrix is modified in-place.
     """
-    pass
+    featureGraph = TUNGraph.New() # the s-friend feature graph
+    s = 0 # feature similarity threshold
+    retainedFeatures = v # features to be recursive generated
+    while True:
+        newFeatures = generateRecursiveFeatures(graph, retainedFeatures)
+        retainedFeatures = pruneRecursiveFeatures(
+                featureGraph, v, newFeatures, s)
+        if len(retainedFeatures) == 0:
+            break
+        addFeatures(v, retainedFeatures)
+        s += 1
 
 def extractFeatures(graph):
-    # construct the node feature matrix
+    # create node feature matrix
     v = {}
     for node in graph.Nodes():
         v[node.GetId()] = []
