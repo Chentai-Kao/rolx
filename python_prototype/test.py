@@ -70,7 +70,5 @@ if __name__ == '__main__':
     for r in range(1, 10):
         g, f = factorization.nonNegativeFactorization(v, r)
         errors[r] = computeDescriptionLength(v, g, f)
-        print errors[r]
     numRoles = min(errors, key=errors.get)
-    print '---role---'
-    print numRoles
+    print 'using ' + str(numRoles) + ' roles'
