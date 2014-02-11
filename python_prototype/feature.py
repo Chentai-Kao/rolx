@@ -1,5 +1,6 @@
 import math
 import numpy as np
+from snap import *
 
 def localFeatures(graph, v):
     """Generate local features.
@@ -90,7 +91,7 @@ def generateRecursiveFeatures(graph, existingFeatures):
             newFeatures[node.GetId()].append(featureMean)
     return newFeatures
 
-def appendFeatures(dstFeatures, srcFeatures):
+def appendFeatures(dstFeatures, srcFeatures, col=None):
     """Append features to a node feature matrix.
 
     Args:
@@ -99,11 +100,15 @@ def appendFeatures(dstFeatures, srcFeatures):
             This variable is modified in-place.
         srcFeatures: the node feature matrix to append from.
             Same type as dstFeatures.
+        col: which column to append from the source features.
     """
     assert set(dstFeatures.keys()) == set(srcFeatures.keys())
     for node, features in srcFeatures.iteritems():
-        for f in features:
-            dstFeatures[node].append(f)
+        if col is not None:
+            dstFeatures[node].append(features[col])
+        else:
+            for f in features:
+                dstFeatures[node].append(f)
 
 def getIthFeature(v, i):
     """Get the i-th feature of all nodes.
@@ -205,6 +210,12 @@ def verticalLogBinning(v, p):
         assignBinValue(logBin, sortedIdx, v.keys(), p)
     return logBin
 
+def printFeatures(features):
+    for k, v in features.iteritems():
+        print '---' + str(k) + '---'
+        for i in v:
+            print i
+
 def pruneRecursiveFeatures(v, newFeatures, s):
     """Prune newly generated recursive features.
 
@@ -220,20 +231,45 @@ def pruneRecursiveFeatures(v, newFeatures, s):
         A dictionary {node1: [f1, f2, ...], node2: [f1, f2, ...], ...}.
         If no feature is retained, this will be an empty dictionary.
     """
+    # create the node feature matrix holding both v and new features
+    allFeatures = {}
+    for node in v.keys():
+        allFeatures[node] = []
+    appendFeatures(allFeatures, v)
+    appendFeatures(allFeatures, newFeatures)
     # vertical logarithmic binning
     p = 0.5
-    logFeatures = verticalLogBinning(v, p)
+    logFeatures = verticalLogBinning(allFeatures, p)
+
     # construct feature graph (s-friend)
     numFeatures = len(logFeatures.values()[0])
     featureGraph = TUNGraph.New() # the s-friend feature graph
     for i in range(numFeatures):
-        featureI = getIthFeature(v, i)
+        featureGraph.AddNode(i)
+    for i in range(numFeatures):
+        featureI = getIthFeature(logFeatures, i)
         for j in range(i + 1, numFeatures):
-            featureJ = getIthFeature(v, j)
+            featureJ = getIthFeature(logFeatures, j)
             if isSimilar(featureI, featureJ, s):
-                addEdge(featureGraph, i, j)
-    # TODO summarize connected component (use CnCom)
-    # TODO return retained features
+                if not featureGraph.IsEdge(i, j):
+                    featureGraph.AddEdge(i, j)
+    # summarize connected component
+    retainedIdx = []
+    wcc = TCnComV()
+    GetWccs(featureGraph, wcc) # get all weakly connected components
+    for i in range(0, wcc.Len()):
+        retainedIdx.append(wcc[i][0])
+    retainedIdx = sorted(retainedIdx)
+    # return retained features
+    retained = {}
+    for node in v.keys():
+        retained[node] = []
+    startIdxNewFeatures = len(v.values()[0])
+    for i in retainedIdx:
+        # if the retained feature is from new features, add to retained feature
+        if i >= startIdxNewFeatures:
+            appendFeatures(retained, newFeatures, i - startIdxNewFeatures)
+    return retained
 
 def recursiveFeatures(graph, v):
     """Generate recursive features.
@@ -249,8 +285,11 @@ def recursiveFeatures(graph, v):
     while True:
         newFeatures = generateRecursiveFeatures(graph, retainedFeatures)
         retainedFeatures = pruneRecursiveFeatures(v, newFeatures, s)
-        if len(retainedFeatures) == 0:
+        # exit if no feature is retained
+        numRetained = len(retainedFeatures.values()[0])
+        if numRetained == 0:
             break
+        # add retained features to final result
         appendFeatures(v, retainedFeatures)
         s += 1
 
