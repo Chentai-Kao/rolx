@@ -1,3 +1,4 @@
+import math
 import numpy as np
 
 def localFeatures(graph, v):
@@ -138,6 +139,72 @@ def isSimilar(bin1, bin2, s):
             return False
     return True
 
+def addEdge(graph, i, j):
+    """Add the edge (i, j) into the graph.
+
+    Args:
+        graph: a TUNGraph
+        i, j: nodes of the edge to be added
+    """
+    if not graph.IsNode(i):
+        graph.AddNode(i)
+    if not graph.IsNode(j):
+        graph.AddNode(j)
+    if not graph.IsEdge(i, j):
+        graph.AddEdge(i, j)
+
+def assignBinValue(logBin, sortedIdx, nodes, p):
+    """Assign bin value (0, 1, 2, ...) given the sorted index of a feature.
+
+    Args:
+        logBin: vertical logarithmic bin.
+            A dictionary {node1: [0, 1, ...], node2: [2, 1, ...], ...}.
+            This variable will be updated in-place,
+            by appending a bin value to each node's feature.
+        sortedIdx: index of nodes of a sorted feature.
+        nodes: list of all nodes.
+        p: the fraction of nodes placed in each logarithmic bin.
+    """
+    numRemained = len(nodes) # number of nodes not yet assigned
+    binValue = 0
+    start = 0
+    while numRemained > 0:
+        # number of nodes with the lowest value
+        numLowest = int(math.ceil(p * numRemained))
+        # assign bin value for nodes in (start, end)
+        end = start + numLowest
+        for i in range(start, end):
+            node = nodes[sortedIdx[i]]
+            logBin[node].append(binValue)
+        start = end
+        numRemained -= numLowest
+        binValue += 1
+
+def verticalLogBinning(v, p):
+    """Compute vertical logarithmic binning of features.
+
+    Args:
+        v: the node feature matrix.
+            A dictionary {node1: [f1, f2, ...], node2: [f1, f2, ...], ...}.
+        p: the fraction of nodes placed in each logarithmic bin.
+
+    Returns:
+        vertical logarithmic bin.
+        A dictionary {node1: [0, 1, ...], node2: [2, 1, ...], ...}.
+    """
+    logBin = {}
+    for node in v.keys():
+        logBin[node] = []
+    # for each feature, the p fraction with the lowest values are assigned
+    # bin number 0, next p fraction are assigned bin number 1, etc.
+    binNum = 0
+    numFeatures = len(v.values()[0])
+    for i in range(numFeatures):
+        f = getIthFeature(v, i)
+        sortedIdx = sorted(range(len(f)), key=lambda k: f[k])
+        assignBinValue(logBin, sortedIdx, v.keys(), p)
+    return logBin
+
 def pruneRecursiveFeatures(v, newFeatures, s):
     """Prune newly generated recursive features.
 
@@ -154,7 +221,8 @@ def pruneRecursiveFeatures(v, newFeatures, s):
         If no feature is retained, this will be an empty dictionary.
     """
     # vertical logarithmic binning
-    logFeatures = verticalLogBinning(v)
+    p = 0.5
+    logFeatures = verticalLogBinning(v, p)
     # construct feature graph (s-friend)
     numFeatures = len(logFeatures.values()[0])
     featureGraph = TUNGraph.New() # the s-friend feature graph
