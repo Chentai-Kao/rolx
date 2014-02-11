@@ -54,6 +54,33 @@ def toNumpyMatrix(v):
         nodeIdx += 1
     return m
 
+def plotRole(graph, g):
+    """Plot the role of each node.
+
+    Args:
+        graph: a graph.
+        g: the numpy matrix in v = g*f, dimension of g is n x r.
+            Each row of g represents node's membership in each role.
+    """
+    roleToColor = {}
+    roleToColor[0] = "white"
+    roleToColor[1] = "black"
+    roleToColor[2] = "red"
+    roleToColor[3] = "green"
+    roleToColor[4] = "blue"
+    roleToColor[5] = "yellow"
+    roleToColor[6] = "magenta"
+    roleToColor[7] = "cyan"
+    roleToColor[8] = "magenta"
+
+    # collect the role of each node
+    color = TIntStrH()
+    roles = np.argmax(g, axis=1)
+    for i in range(len(roles)):
+        role = roles[i]
+        color.AddDat(i, roleToColor[role])
+    DrawGViz(graph, 0, 'test.png', 'Dot', True, color)
+
 if __name__ == '__main__':
     # read graph
     fileName = "facebook_dataset/facebook_combined_small.txt"
@@ -66,9 +93,14 @@ if __name__ == '__main__':
     v = toNumpyMatrix(v)
 
     # pick number of roles with minimum error L = M + E
-    errors = {}
-    for r in range(1, 10):
-        g, f = factorization.nonNegativeFactorization(v, r)
-        errors[r] = computeDescriptionLength(v, g, f)
-    numRoles = min(errors, key=errors.get)
+    minError = sys.float_info.max
+    #for r in range(1, 10):
+    r = 3
+    g, f = factorization.nonNegativeFactorization(v, r)
+    error = computeDescriptionLength(v, g, f)
+    if error < minError:
+        minError = error
+        finalG, finalF = g, f
+        numRoles = r
     print 'using ' + str(numRoles) + ' roles'
+    plotRole(graph, finalG)
