@@ -1,5 +1,6 @@
 import factorization
 import feature
+import math
 import numpy as np
 import sys
 from snap import *
@@ -14,13 +15,21 @@ def computeDescriptionLength(v, g, f):
     Returns:
         A number that is the description length L = M + E
     """
-    n, r = v.shape # size of v
-    b = 16 # number of bits of data
-    # TODO
     # representation cost
-    m = 0
+    b = 64 # number of bits of data
+    m = b * v.shape[1] * (v.shape[0] + f.shape[1])
     # errors of (V - GF)
     e = 0
+    gf = g.dot(f)
+    for i in range(v.shape[0]):
+        for j in range(v.shape[1]):
+            valueV = v[i, j]
+            valueGF = gf[i, j]
+            if np.allclose(valueV, 0):
+                e += valueGF
+            else:
+                e += valueV * math.log(valueV / valueGF) - valueV + valueGF
+    # return the sum of both errors
     return m + e
 
 def toNumpyMatrix(v):
@@ -61,4 +70,7 @@ if __name__ == '__main__':
     for r in range(1, 10):
         g, f = factorization.nonNegativeFactorization(v, r)
         errors[r] = computeDescriptionLength(v, g, f)
+        print errors[r]
     numRoles = min(errors, key=errors.get)
+    print '---role---'
+    print numRoles
