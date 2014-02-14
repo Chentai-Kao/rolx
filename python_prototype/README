@@ -47,3 +47,15 @@ Current prototype use 50 iteration in the factorization. This number is in the
 paper as the regular convergence speed. We may choose other convergence 
 conditions, like the matrices do not change under some threshold. More tune is 
 needed as a trade-off between convergence speed and accuracy.
+
+Some ideas:
+1. Use sum of the features in recursion or not.
+Sum is the absolute quantity of the edges. If two nodes are centres of a small
+egonet and a large egonet respectively, then the sum will differ a lot. But 
+they should be same role.
+
+2. In the non-negative factorization, it is actually a weighted average on the
+roles. Is the features addable? If A is role x and role y. X's typical features
+are like alpha and y's typical features are like beta, should A's features like
+(alpha+beta)/2? The key is to get a model of roles partition matrix -> features
+matrix. 
