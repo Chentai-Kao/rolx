@@ -2,3 +2,6 @@
 *.pyc
 test.graph
 test.txt
+*.png
+*.dot
+python_prototype/small.py
