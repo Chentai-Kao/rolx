@@ -54,13 +54,14 @@ def toNumpyMatrix(v):
         nodeIdx += 1
     return m
 
-def plotRole(graph, g):
+def plotRole(graph, g, imgName):
     """Plot the role of each node.
 
     Args:
         graph: a graph.
         g: the numpy matrix in v = g*f, dimension of g is n x r.
             Each row of g represents node's membership in each role.
+        imgName: the name of output image
     """
     roleToColor = {}
     roleToColor[0] = "white"
@@ -72,6 +73,10 @@ def plotRole(graph, g):
     roleToColor[6] = "magenta"
     roleToColor[7] = "cyan"
     roleToColor[8] = "magenta"
+    roleToColor[9] = "brown"
+    roleToColor[10] = "gold"
+    roleToColor[11] = "gray"
+    roleToColor[12] = "pink"
 
     # collect the role of each node
     color = TIntStrH()
@@ -79,7 +84,7 @@ def plotRole(graph, g):
     for i in range(len(roles)):
         role = roles[i]
         color.AddDat(i, roleToColor[role])
-    DrawGViz(graph, 0, 'test.png', 'Dot', True, color)
+    DrawGViz(graph, 0, imgName + '.png', 'Dot', True, color)
 
 if __name__ == '__main__':
     # read graph
@@ -94,13 +99,12 @@ if __name__ == '__main__':
 
     # pick number of roles with minimum error L = M + E
     minError = sys.float_info.max
-    #for r in range(1, 10):
-    r = 3
-    g, f = factorization.nonNegativeFactorization(v, r)
-    error = computeDescriptionLength(v, g, f)
-    if error < minError:
-        minError = error
-        finalG, finalF = g, f
-        numRoles = r
+    for r in range(1, 10):
+        g, f = factorization.nonNegativeFactorization(v, r)
+        error = computeDescriptionLength(v, g, f)
+        plotRole(graph, g, str(r) + '_roles')
+        if error < minError:
+            minError = error
+            finalG, finalF = g, f
+            numRoles = r
     print 'using ' + str(numRoles) + ' roles'
-    plotRole(graph, finalG)
