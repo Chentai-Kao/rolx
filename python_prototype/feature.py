@@ -202,7 +202,6 @@ def verticalLogBinning(v, p):
         logBin[node] = []
     # for each feature, the p fraction with the lowest values are assigned
     # bin number 0, next p fraction are assigned bin number 1, etc.
-    binNum = 0
     numFeatures = len(v.values()[0])
     for i in range(numFeatures):
         f = getIthFeature(v, i)
