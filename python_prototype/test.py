@@ -88,7 +88,8 @@ def plotRole(graph, g, imgName):
 
 if __name__ == '__main__':
     # read graph
-    fileName = "facebook_dataset/facebook_combined_small.txt"
+    fileName = "dataset/facebook_combined_small.txt"
+    #fileName = "dataset/Email-Enron.txt"
     graph = LoadEdgeList(PUNGraph, fileName, 0, 1)
 
     # feature extraction
