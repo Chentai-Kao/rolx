@@ -3,6 +3,6 @@
 
 ## Main application file
 MAIN = prototype
-DEPH = 
-DEPCPP = 
+DEPH = egonet.h rolx.h
+DEPCPP = egonet.cpp rolx.cpp
 
