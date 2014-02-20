@@ -41,7 +41,7 @@ def egonetFeatures(graph, v):
                 else:
                     numAroundEgonetEdges += 1
         # store the features
-        v[node.GetId()].append(numWithinEgonetEdges)
+        v[node.GetId()].append(numWithinEgonetEdges / 2)
         v[node.GetId()].append(numAroundEgonetEdges)
 
 def neighborhoodFeatures(graph, v):
