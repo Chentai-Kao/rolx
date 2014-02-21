@@ -1,0 +1,18 @@
+//undirected egonet
+class TUNEgonet : public TUNGraph{
+constructor:
+
+TEgoNet(int &NId, PGraph &Graph);
+
+private attribute:
+TInt CtrNId;
+TInt WthnEdges, ArndEdges;
+
+public member methods:
+int GetCtrNId()
+int GetWthnEdges()
+int GetArndEdges()
+}
+
+//directed egonet
+//TODO

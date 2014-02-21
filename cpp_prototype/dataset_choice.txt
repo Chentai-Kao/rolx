@@ -1,0 +1,7 @@
+Enron Email Network:
+http://snap.stanford.edu/data/email-Enron.html
+undirected, small size
+
+Consideration:
+The network is built for people in a company. Analyzing the roles in the network may match the real roles, or positions. 
+
