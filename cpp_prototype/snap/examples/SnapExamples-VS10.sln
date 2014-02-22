@@ -1,6 +1,8 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.21005.1
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ncpplot", "ncpplot\ncpplot.vcxproj", "{D744773B-A887-425A-A715-AADB2AE9511A}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "forestfire", "forestfire\forestfire.vcxproj", "{345EFCD5-A5BA-4C41-928C-AE5BD9A5FE09}"
@@ -48,6 +50,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bigclam", "bigclam\bigclam.vcxproj", "{28DB5D47-AB1D-4C0A-8D80-28A873591489}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cesna", "cesna\cesna.vcxproj", "{67C001C3-4BF0-4148-AD17-5D342442232B}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "rolx", "rolx\rolx.vcxproj", "{1C8155BD-741D-465F-8EAF-1439954E31D2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -180,6 +184,12 @@ Global
 		{67C001C3-4BF0-4148-AD17-5D342442232B}.Release|Win32.Build.0 = Release|Win32
 		{67C001C3-4BF0-4148-AD17-5D342442232B}.Release|x64.ActiveCfg = Release|Win32
 		{67C001C3-4BF0-4148-AD17-5D342442232B}.Release|x64.Build.0 = Release|Win32
+		{1C8155BD-741D-465F-8EAF-1439954E31D2}.Debug|Win32.ActiveCfg = Debug|Win32
+		{1C8155BD-741D-465F-8EAF-1439954E31D2}.Debug|Win32.Build.0 = Debug|Win32
+		{1C8155BD-741D-465F-8EAF-1439954E31D2}.Debug|x64.ActiveCfg = Debug|Win32
+		{1C8155BD-741D-465F-8EAF-1439954E31D2}.Release|Win32.ActiveCfg = Release|Win32
+		{1C8155BD-741D-465F-8EAF-1439954E31D2}.Release|Win32.Build.0 = Release|Win32
+		{1C8155BD-741D-465F-8EAF-1439954E31D2}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
