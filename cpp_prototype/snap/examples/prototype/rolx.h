@@ -7,7 +7,7 @@
 typedef TVec<TFlt> TFtr;
 typedef THash<TInt, TFtr> TIntFtrH;
 
-void PrintFeatures(const TIntFtrH& Features);
+void PrintFeatures(const TIntFtrH& Features, const int NodeIdx);
 TIntFtrH CreateEmptyFeatures(const PUNGraph Graph);
 TIntFtrH CreateEmptyFeatures(const TIntFtrH& Features);
 int GetNumFeatures(const TIntFtrH& Features);
@@ -34,5 +34,13 @@ void AssignBinValue(const TVec<TInt>& SortedNId, const float BinFraction,
     TIntFtrH& LogBinFeatures);
 bool IsSimilarFeature(const TFtr& F1, const TFtr& F2,
     const int SimilarityThreshold);
+TFltVV ConvertFeatureToMatrix(const TIntFtrH& Features);
+void PrintMatrix(const TFltVV& Matrix);
+TFltVV CreateOnesMatrix(const int XDim, const int YDim);
+bool FltIsZero(const TFlt f);
+void CalcNonNegativeFactorization(const TFltVV& V, const int NumRoles,
+    TFltVV& W, TFltVV& H);
+TFlt ComputeDescriptionLength(const TFltVV& V, const TFltVV& G,
+    const TFltVV& F);
 
 #endif

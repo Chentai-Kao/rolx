@@ -53,7 +53,6 @@ TIntFtrH ExtractFeatures(const PUNGraph Graph) {
 void AddNeighborhoodFeatures(const PUNGraph Graph, TIntFtrH& Features) {
   AddLocalFeatures(Graph, Features);
   AddEgonetFeatures(Graph, Features);
-  PrintFeatures(Features);
 }
 
 void AddRecursiveFeatures(const PUNGraph Graph, TIntFtrH& Features) {
@@ -226,4 +225,115 @@ bool IsSimilarFeature(const TFtr& F1, const TFtr& F2,
     }
   }
   return true;
+}
+
+TFltVV ConvertFeatureToMatrix(const TIntFtrH& Features) {
+  const int NumNodes = Features.Len();
+  const int NumFeatures = GetNumFeatures(Features);
+  TFltVV FeaturesMtx(NumNodes, NumFeatures);
+  for (int i = 0; i < NumNodes; ++i) {
+    for (int j = 0; j < NumFeatures; ++j) {
+      FeaturesMtx(i, j) = Features[i][j];
+    }
+  }
+  return FeaturesMtx;
+}
+
+void PrintMatrix(const TFltVV& Matrix) {
+  int XDim = Matrix.GetXDim();
+  int YDim = Matrix.GetYDim();
+  printf("[");
+  for (int i = 0; i < XDim; ++i) {
+    printf("[");
+    for (int j = 0; j < YDim; ++j) {
+      if (j != 0) {
+        printf(" ");
+      }
+      printf("%f", Matrix(i, j)());
+    }
+    printf("]\n");
+  }
+  printf("]\n");
+}
+
+TFltVV CreateOnesMatrix(const int XDim, const int YDim) {
+  TFltVV Matrix(XDim, YDim);
+  for (int i = 0; i < XDim; ++i) {
+    for (int j = 0; j < YDim; ++j) {
+      Matrix(i, j) = 1;
+    }
+  }
+  return Matrix;
+}
+
+bool FltIsZero(const TFlt f) {
+  return TFlt::Abs(f) < TFlt::Eps;
+}
+
+void CalcNonNegativeFactorization(const TFltVV& V, const int NumRoles,
+    TFltVV& W, TFltVV& H) {
+  int NumNodes = V.GetXDim();
+  int NumFeatures = V.GetYDim();
+  W = CreateOnesMatrix(NumNodes, NumRoles);
+  H = CreateOnesMatrix(NumRoles, NumFeatures);
+  TFltVV Product(NumNodes, NumFeatures);
+  for (int NumIter = 0; NumIter < 50; ++NumIter) {
+    TLinAlg::Multiply(W, H, Product);
+    // update W
+    for (int i = 0; i < NumNodes; ++i) {
+      for (int a = 0; a < NumRoles; ++a) {
+        float SumU = 0;
+        for (int u = 0; u < NumFeatures; ++u) {
+          if (!FltIsZero(Product(i, u))) {
+            SumU += V(i, u) / Product(i, u) * H(a, u);
+          }
+        }
+        W(i, a) *= SumU;
+      }
+    }
+    for (int i = 0; i < NumNodes; ++i) {
+      for (int a = 0; a < NumRoles; ++a) {
+        float SumJ = 0;
+        for (int j = 0; j < NumNodes; ++j) {
+          SumJ += W(j, a);
+        }
+        if (!FltIsZero(SumJ)) {
+          W(i, a) /= SumJ;
+        }
+      }
+    }
+    // update H
+    for (int a = 0; a < NumRoles; ++a) {
+      for (int u = 0; u < NumFeatures; ++u) {
+        float SumI = 0;
+        for (int i = 0; i < NumNodes; ++i) {
+          if (!FltIsZero(Product(i, u))) {
+            SumI += W(i, a) * V(i, u) / Product(i, u);
+          }
+        }
+        H(a, u) *= SumI;
+      }
+    }
+  }
+}
+
+TFlt ComputeDescriptionLength(const TFltVV& V, const TFltVV& G,
+    const TFltVV& F) {
+  int b = 64;
+  int m = b * V.GetYDim() * (V.GetXDim() + F.GetYDim());
+  TFlt e = 0;
+  TFltVV GF(G.GetXDim(), F.GetYDim());
+  TLinAlg::Multiply(G, F, GF);
+  for (int i = 0; i < V.GetXDim(); ++i) {
+    for (int j = 0; j < V.GetYDim(); ++j) {
+      TFlt ValueV = V(i, j);
+      TFlt ValueGF = GF(i, j);
+      if (FltIsZero(ValueV)) {
+        e += ValueGF;
+      } else if (!FltIsZero(ValueGF)) {
+        e += ValueV * TMath::Log(ValueV / ValueGF) - ValueV + ValueGF;
+      }
+    }
+  }
+  return m + e;
 }
