@@ -2,7 +2,7 @@
 class TUNEgonet : public TUNGraph{
 constructor:
 
-TEgoNet(int &NId, PGraph &Graph);
+TUNEgoNet(PUNGraph &Graph, int &NId);
 
 private attribute:
 TInt CtrNId;
@@ -15,4 +15,18 @@ int GetArndEdges()
 }
 
 //directed egonet
-//TODO
+class TNEgonet : public TNGraph {
+
+constructor:
+TNEgonet(PNGraph &Graph, int CtrNId);
+
+private attribute:
+TInt CtrNId;
+TInt WthnEdges, InEdges, OutEdges;
+
+public member methods:
+int GetCtrNId()
+int GetWthnEdges()
+int GetInEdges()
+int GetOutEdges()
+}
