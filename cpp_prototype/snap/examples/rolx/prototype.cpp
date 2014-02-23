@@ -7,6 +7,27 @@ int main(int argc, char* argv[]) {
       "dataset/facebook_combined_small.txt", 0, 1);
 
   TIntFtrH Features = ExtractFeatures(Graph);
+  TFltVV V = ConvertFeatureToMatrix(Features);
+
+  TFlt MnError = TFlt::Mx;
+  TFltVV FinalG, FinalF;
+  int NumRoles = -1;
+  for (int r = 1; r < 10; ++r) {
+    TFltVV G, F;
+    CalcNonNegativeFactorization(V, r, G, F);
+    TFlt Error = ComputeDescriptionLength(V, G, F);
+    if (Error < MnError) {
+      MnError = Error;
+      FinalG = G;
+      FinalF = F;
+      NumRoles = r;
+    }
+  }
+  //printf("--FinalG--\n");
+  //PrintMatrix(FinalG);
+  //printf("--FinalF--\n");
+  //PrintMatrix(FinalF);
+  printf("using %d roles\n", NumRoles);
 
   return 0;
 }

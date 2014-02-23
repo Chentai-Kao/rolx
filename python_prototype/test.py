@@ -27,7 +27,7 @@ def computeDescriptionLength(v, g, f):
             valueGF = gf[i, j]
             if np.allclose(valueV, 0):
                 e += valueGF
-            else:
+            elif not np.allclose(valueGF, 0):
                 e += valueV * math.log(valueV / valueGF) - valueV + valueGF
     # return the sum of both errors
     return m + e
