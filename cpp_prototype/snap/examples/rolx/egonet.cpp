@@ -17,8 +17,7 @@ TUNEgonet::TUNEgonet(const PUNGraph& Graph, const int CtrNId) {
         if (!this->IsEdge(NbrNId, NbrNbrNId)) {
           this->AddEdge(NbrNId, NbrNbrNId);
         }
-      }
-      else {
+      } else {
         this->ArndEdges++;
       }
     }
@@ -42,8 +41,7 @@ TNEgonet::TNEgonet(const PNGraph& Graph, const int CtrNId) {
       int NbrNbrNId = NbrNode.GetInNId(j);
       if (this->IsNode(NbrNbrNId)) {
         this->AddEdge(NbrNbrNId, NbrNId);
-      }
-      else {
+      } else {
         this->InEdges++;
       }
     }

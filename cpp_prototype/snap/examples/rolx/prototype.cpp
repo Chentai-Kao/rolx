@@ -4,7 +4,7 @@
 
 int main(int argc, char* argv[]) {
   PUNGraph Graph = TSnap::LoadEdgeList<PUNGraph>(
-      "dataset/facebook_combined_small.txt", 0, 1);
+      "dataset/Email-Enron.txt", 0, 1);
 
   TIntFtrH Features = ExtractFeatures(Graph);
   TFltVV V = ConvertFeatureToMatrix(Features);
@@ -12,7 +12,7 @@ int main(int argc, char* argv[]) {
   TFlt MnError = TFlt::Mx;
   TFltVV FinalG, FinalF;
   int NumRoles = -1;
-  for (int r = 1; r < 10; ++r) {
+  for (int r = 1; r < 2; ++r) {
     TFltVV G, F;
     CalcNonNegativeFactorization(V, r, G, F);
     TFlt Error = ComputeDescriptionLength(V, G, F);

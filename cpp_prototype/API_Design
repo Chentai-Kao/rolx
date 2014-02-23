@@ -30,3 +30,6 @@ int GetWthnEdges()
 int GetInEdges()
 int GetOutEdges()
 }
+
+
+//TODO Each public SNAP class must define the following methods: a default constructor, a copy constructor, a TSIn constructor, a Load() method, a Save() method and an assignment operator =:

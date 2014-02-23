@@ -1,0 +1,4 @@
+1. Once a feature is log binned, we can store that. Currently each iteration will log bin all the features. Sort all features for each iteration is not trivial.
+
+2. Currently all the functions return the object not pointer, all the object is constructed on the stack. Which means each time function is called, the data needs to be copied. This is not trivial.
+
