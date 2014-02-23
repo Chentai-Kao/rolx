@@ -7,6 +7,7 @@ int main(int argc, char* argv[]) {
       "dataset/Email-Enron.txt", 0, 1);
 
   TIntFtrH Features = ExtractFeatures(Graph);
+  printf("finish feature extraction\n");
   TFltVV V = ConvertFeatureToMatrix(Features);
 
   TFlt MnError = TFlt::Mx;
@@ -15,6 +16,7 @@ int main(int argc, char* argv[]) {
   for (int r = 1; r < 2; ++r) {
     TFltVV G, F;
     CalcNonNegativeFactorization(V, r, G, F);
+    printf("finish factorization\n");
     TFlt Error = ComputeDescriptionLength(V, G, F);
     if (Error < MnError) {
       MnError = Error;
