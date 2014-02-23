@@ -46,9 +46,9 @@ TFtr GetNthFeature(const TIntFtrH& Features, const int n) {
 TIntFtrH ExtractFeatures(const PUNGraph Graph) {
   TIntFtrH Features = CreateEmptyFeatures(Graph);
   AddNeighborhoodFeatures(Graph, Features);
-  printf("finish neighborhood features");
+  printf("finish neighborhood features\n");
   AddRecursiveFeatures(Graph, Features);
-  printf("finish recursive features");
+  printf("finish recursive features\n");
   return Features;
 }
 
@@ -69,7 +69,8 @@ void AddRecursiveFeatures(const PUNGraph Graph, TIntFtrH& Features) {
     }
     AppendFeatures(Features, RetainedFeatures);
     ++SimilarityThreshold;
-    printf("recursion %d", SimilarityThreshold);
+    printf("recursion %d: ", SimilarityThreshold);
+    printf("current feature number %d\n", GetNumFeatures(Features));
   }
 }
 
