@@ -2,3 +2,7 @@
 
 2. Currently all the functions return the object not pointer, all the object is constructed on the stack. Which means each time function is called, the data needs to be copied. This is not trivial.
 
+
+Chentai:
+I think 1 is more important, please do that.
+For 2, I return object only when creating empty object or after a heavy computation is done. So I don't think it's very critical. Of course this can be optimized (by passing in a reference of the output instead of pointer, otherwise we have to handle memory management), but maybe later.
