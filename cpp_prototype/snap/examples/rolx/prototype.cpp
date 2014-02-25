@@ -13,7 +13,7 @@ int main(int argc, char* argv[]) {
   TFlt MnError = TFlt::Mx;
   TFltVV FinalG, FinalF;
   int NumRoles = -1;
-  for (int r = 1; r < 2; ++r) {
+  for (int r = 3; r < 4; ++r) {
     TFltVV G, F;
     CalcNonNegativeFactorization(V, r, G, F);
     printf("finish factorization\n");
@@ -26,7 +26,7 @@ int main(int argc, char* argv[]) {
     }
   }
   //printf("--FinalG--\n");
-  //PrintMatrix(FinalG);
+  PrintMatrix(FinalG);
   //printf("--FinalF--\n");
   //PrintMatrix(FinalF);
   printf("using %d roles\n", NumRoles);
