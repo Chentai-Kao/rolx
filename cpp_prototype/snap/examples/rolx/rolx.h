@@ -7,7 +7,7 @@
 typedef TVec<TFlt> TFtr;
 typedef THash<TInt, TFtr> TIntFtrH;
 
-void PrintFeatures(const TIntFtrH& Features, const int NodeIdx);
+void PrintFeatures(const TIntFtrH& Features);
 TIntFtrH CreateEmptyFeatures(const PUNGraph Graph);
 TIntFtrH CreateEmptyFeatures(const TIntFtrH& Features);
 int GetNumFeatures(const TIntFtrH& Features);

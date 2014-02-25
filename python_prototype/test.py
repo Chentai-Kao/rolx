@@ -81,6 +81,8 @@ def plotRole(graph, g, imgName):
     # collect the role of each node
     color = TIntStrH()
     roles = np.argmax(g, axis=1)
+    print(g)
+    print(roles)
     for i in range(len(roles)):
         role = roles[i]
         color.AddDat(i, roleToColor[role])
@@ -100,7 +102,7 @@ if __name__ == '__main__':
 
     # pick number of roles with minimum error L = M + E
     minError = sys.float_info.max
-    for r in range(1, 10):
+    for r in range(2, 3):
         g, f = factorization.nonNegativeFactorization(v, r)
         error = computeDescriptionLength(v, g, f)
         plotRole(graph, g, str(r) + '_roles')

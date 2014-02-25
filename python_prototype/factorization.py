@@ -11,8 +11,8 @@ def nonNegativeFactorization(v, r):
         A tuple (w, h) such that v = w*h
     """
     n, f = v.shape
-    w = np.ones((n, r))
-    h = np.ones((r, f))
+    w = np.random.rand(n, r)
+    h = np.random.rand(r, f)
     # Update W
     for iteration in range(50):
         tempProduct = w.dot(h)

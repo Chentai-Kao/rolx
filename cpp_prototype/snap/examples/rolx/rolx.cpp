@@ -261,10 +261,12 @@ void PrintMatrix(const TFltVV& Matrix) {
 }
 
 TFltVV CreateOnesMatrix(const int XDim, const int YDim) {
+  int seed = 7;
   TFltVV Matrix(XDim, YDim);
   for (int i = 0; i < XDim; ++i) {
     for (int j = 0; j < YDim; ++j) {
-      Matrix(i, j) = 1;
+      seed = (seed * 7687) % 9973;
+      Matrix(i, j) = (float)seed / 9973;
     }
   }
   return Matrix;
