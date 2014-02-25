@@ -36,7 +36,7 @@ bool IsSimilarFeature(const TFtr& F1, const TFtr& F2,
     const int SimilarityThreshold);
 TFltVV ConvertFeatureToMatrix(const TIntFtrH& Features);
 void PrintMatrix(const TFltVV& Matrix);
-TFltVV CreateOnesMatrix(const int XDim, const int YDim);
+TFltVV CreateRandMatrix(const int XDim, const int YDim);
 bool FltIsZero(const TFlt f);
 void CalcNonNegativeFactorization(const TFltVV& V, const int NumRoles,
     TFltVV& W, TFltVV& H);

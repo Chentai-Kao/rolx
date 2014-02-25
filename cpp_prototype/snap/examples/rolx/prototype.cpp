@@ -61,7 +61,7 @@ int main(int argc, char* argv[]) {
     }
   }
   //printf("--FinalG--\n");
-  //PrintMatrix(FinalG);
+  PrintMatrix(FinalG);
   //printf("--FinalF--\n");
   //PrintMatrix(FinalF);
   printf("using %d roles\n", NumRoles);

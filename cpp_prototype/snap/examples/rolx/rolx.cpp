@@ -260,13 +260,12 @@ void PrintMatrix(const TFltVV& Matrix) {
   printf("]\n");
 }
 
-TFltVV CreateOnesMatrix(const int XDim, const int YDim) {
-  int seed = 7;
+TFltVV CreateRandMatrix(const int XDim, const int YDim) {
+  srand(time(NULL));
   TFltVV Matrix(XDim, YDim);
   for (int i = 0; i < XDim; ++i) {
     for (int j = 0; j < YDim; ++j) {
-      seed = (seed * 7687) % 9973;
-      Matrix(i, j) = (float)seed / 9973;
+      Matrix(i, j) = (double) rand() / RAND_MAX;
     }
   }
   return Matrix;
@@ -280,8 +279,8 @@ void CalcNonNegativeFactorization(const TFltVV& V, const int NumRoles,
     TFltVV& W, TFltVV& H) {
   int NumNodes = V.GetXDim();
   int NumFeatures = V.GetYDim();
-  W = CreateOnesMatrix(NumNodes, NumRoles);
-  H = CreateOnesMatrix(NumRoles, NumFeatures);
+  W = CreateRandMatrix(NumNodes, NumRoles);
+  H = CreateRandMatrix(NumRoles, NumFeatures);
   TFltVV Product(NumNodes, NumFeatures);
   for (int NumIter = 0; NumIter < 50; ++NumIter) {
     TLinAlg::Multiply(W, H, Product);
