@@ -83,9 +83,10 @@ void AddLocalFeatures(const PUNGraph Graph, TIntFtrH& Features) {
 void AddEgonetFeatures(const PUNGraph Graph, TIntFtrH& Features) {
   for (TUNGraph::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
     int NId = NI.GetId();
-    TUNEgonet Egonet(Graph, NId);
-    Features[NId].Add(Egonet.GetWthnEdges());
-    Features[NId].Add(Egonet.GetArndEdges());
+    int ArndEdges;
+    PUNGraph Egonet = GetEgonet(Graph, NId, ArndEdges);
+    Features[NId].Add(Egonet->GetEdges());
+    Features[NId].Add(ArndEdges);
   }
 }
 

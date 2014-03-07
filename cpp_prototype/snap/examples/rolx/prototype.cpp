@@ -36,7 +36,7 @@ void PrintRole(PUNGraph Graph, TFltVV& G) {
 
 int main(int argc, char* argv[]) {
   PUNGraph Graph = TSnap::LoadEdgeList<PUNGraph>(
-      "dataset/Email-Enron.txt", 0, 1);
+      "dataset/facebook_combined_small.txt", 0, 1);
 
   TIntFtrH Features = ExtractFeatures(Graph);
   printf("finish feature extraction\n");
@@ -61,7 +61,7 @@ int main(int argc, char* argv[]) {
     }
   }
   //printf("--FinalG--\n");
-  PrintMatrix(FinalG);
+  //PrintMatrix(FinalG);
   //printf("--FinalF--\n");
   //PrintMatrix(FinalF);
   printf("using %d roles\n", NumRoles);

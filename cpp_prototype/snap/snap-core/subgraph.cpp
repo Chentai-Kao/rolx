@@ -79,5 +79,4 @@ PNGraph GetSubGraph(const PNGraph& Graph, const TIntV& NIdV, const bool& Renumbe
   return NewGraphPt;
 }
 
-
 } // namespace TSnap
