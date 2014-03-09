@@ -3,17 +3,6 @@
 #include "egonet.h"
 #include "rolx.h"
 
-void PrintRole(const PUNGraph Graph, const TIntIntH& Roles) {
-  std::string RoleToColor[10] = { "white", "black", "red", "green", "blue",
-      "yellow", "gold", "cyan", "magenta", "brown" };
-  TIntStrH Color;
-  for (TIntIntH::TIter HI = Roles.BegI(); HI < Roles.EndI(); HI++) {
-    Color.AddDat(HI.GetKey(), RoleToColor[HI.GetDat()].c_str());
-  }
-  TSnap::DrawGViz(Graph, gvlDot, "gviz_plot.png", "Dot", 1, Color);
-  //TGraphViz::Plot<PNGraph>(Graph, gvlDot, "gviz_plot.png", "", Color);
-}
-
 int main(int argc, char* argv[]) {
   if (argc < 2) {
     printf("Usage: ./prototype <dataset file>\n");
@@ -58,7 +47,8 @@ int main(int argc, char* argv[]) {
   printf("using %d roles, min error: %f\n", NumRoles, MnError());
 
   TIntIntH Roles = FindRoles(FinalG, NodeIdMtxIdH);
-  PrintRole(Graph, Roles);
+  PrintRoles(Roles);
+  //PlotRoles(Graph, Roles);
 
   return 0;
 }

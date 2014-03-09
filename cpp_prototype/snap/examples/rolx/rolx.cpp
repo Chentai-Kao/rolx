@@ -396,3 +396,23 @@ TIntIntH FindRoles(const TFltVV& G, const TIntIntH& NodeIdMtxIdH) {
   }
   return Roles;
 }
+
+void PlotRoles(const PUNGraph Graph, const TIntIntH& Roles) {
+  std::string RoleToColor[10] = { "white", "black", "red", "green", "blue",
+      "yellow", "gold", "cyan", "magenta", "brown" };
+  TIntStrH Color;
+  for (TIntIntH::TIter HI = Roles.BegI(); HI < Roles.EndI(); HI++) {
+    Color.AddDat(HI.GetKey(), RoleToColor[HI.GetDat()].c_str());
+  }
+  TSnap::DrawGViz(Graph, gvlDot, "gviz_plot.png", "Dot", 1, Color);
+  //TGraphViz::Plot<PNGraph>(Graph, gvlDot, "gviz_plot.png", "", Color);
+}
+
+void PrintRoles(const TIntIntH& Roles) {
+  printf("--roles (node ID: role ID)--\n");
+  printf("{\n");
+  for (TIntIntH::TIter HI = Roles.BegI(); HI < Roles.EndI(); HI++) {
+    printf("(%d: %d)\n", HI.GetKey()(), HI.GetDat()());
+  }
+  printf("}\n");
+}

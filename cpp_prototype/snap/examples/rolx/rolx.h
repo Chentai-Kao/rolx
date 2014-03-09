@@ -46,5 +46,7 @@ TFlt ComputeDescriptionLength(const TFltVV& V, const TFltVV& G,
 TIntIntH CreateNodeIdMtxIdxHash(const TIntFtrH& Features);
 int GetMtxIdx(const TInt NodeId, const TIntIntH& NodeIdMtxIdH);
 TIntIntH FindRoles(const TFltVV& G, const TIntIntH& NodeIdMtxIdH);
+void PlotRoles(const PUNGraph Graph, const TIntIntH& Roles);
+void PrintRoles(const TIntIntH& Roles);
 
 #endif
