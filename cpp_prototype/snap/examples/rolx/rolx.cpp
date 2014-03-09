@@ -286,39 +286,42 @@ void CalcNonNegativeFactorization(const TFltVV& V, const int NumRoles,
   for (int NumIter = 0; NumIter < 50; ++NumIter) {
     TLinAlg::Multiply(W, H, Product);
     // update W
-    for (int i = 0; i < NumNodes; ++i) {
-      for (int a = 0; a < NumRoles; ++a) {
-        float SumU = 0;
-        for (int u = 0; u < NumFeatures; ++u) {
-          if (!FltIsZero(Product(i, u))) {
-            SumU += V(i, u) / Product(i, u) * H(a, u);
-          }
+#pragma omp parallel for
+    for (int k = 0; k < NumNodes * NumRoles; ++k) {
+      int i = k / NumRoles;
+      int a = k % NumRoles;
+      float SumU = 0;
+      for (int u = 0; u < NumFeatures; ++u) {
+        if (!FltIsZero(Product(i, u))) {
+          SumU += V(i, u) / Product(i, u) * H(a, u);
         }
-        W(i, a) *= SumU;
       }
+      W(i, a) *= SumU;
     }
-    for (int i = 0; i < NumNodes; ++i) {
-      for (int a = 0; a < NumRoles; ++a) {
-        float SumJ = 0;
-        for (int j = 0; j < NumNodes; ++j) {
-          SumJ += W(j, a);
-        }
-        if (!FltIsZero(SumJ)) {
-          W(i, a) /= SumJ;
-        }
+#pragma omp parallel for
+    for (int k = 0; k < NumNodes * NumRoles; ++k) {
+      int i = k / NumRoles;
+      int a = k % NumRoles;
+      float SumJ = 0;
+      for (int j = 0; j < NumNodes; ++j) {
+        SumJ += W(j, a);
+      }
+      if (!FltIsZero(SumJ)) {
+        W(i, a) /= SumJ;
       }
     }
     // update H
-    for (int a = 0; a < NumRoles; ++a) {
-      for (int u = 0; u < NumFeatures; ++u) {
-        float SumI = 0;
-        for (int i = 0; i < NumNodes; ++i) {
-          if (!FltIsZero(Product(i, u))) {
-            SumI += W(i, a) * V(i, u) / Product(i, u);
-          }
+#pragma omp parallel for
+    for (int k = 0; k < NumRoles * NumFeatures; ++k) {
+      int a = k / NumFeatures;
+      int u = k % NumFeatures;
+      float SumI = 0;
+      for (int i = 0; i < NumNodes; ++i) {
+        if (!FltIsZero(Product(i, u))) {
+          SumI += W(i, a) * V(i, u) / Product(i, u);
         }
-        H(a, u) *= SumI;
       }
+      H(a, u) *= SumI;
     }
   }
 }
