@@ -34,7 +34,8 @@ void AssignBinValue(const TVec<TInt>& SortedNId, const float BinFraction,
     TIntFtrH& LogBinFeatures);
 bool IsSimilarFeature(const TFtr& F1, const TFtr& F2,
     const int SimilarityThreshold);
-TFltVV ConvertFeatureToMatrix(const TIntFtrH& Features);
+TFltVV ConvertFeatureToMatrix(const TIntFtrH& Features,
+    const TIntIntH& NodeIdMtxIdH);
 void PrintMatrix(const TFltVV& Matrix);
 TFltVV CreateRandMatrix(const int XDim, const int YDim);
 bool FltIsZero(const TFlt f);
@@ -42,5 +43,8 @@ void CalcNonNegativeFactorization(const TFltVV& V, const int NumRoles,
     TFltVV& W, TFltVV& H);
 TFlt ComputeDescriptionLength(const TFltVV& V, const TFltVV& G,
     const TFltVV& F);
+TIntIntH CreateNodeIdMtxIdxHash(const TIntFtrH& Features);
+int GetMtxIdx(const TInt NodeId, const TIntIntH& NodeIdMtxIdH);
+TIntIntH FindRoles(const TFltVV& G, const TIntIntH& NodeIdMtxIdH);
 
 #endif

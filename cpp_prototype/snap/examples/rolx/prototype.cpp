@@ -3,36 +3,15 @@
 #include "egonet.h"
 #include "rolx.h"
 
-void PrintRole(PUNGraph Graph, TFltVV& G) {
-  std::string roleToColor[10];
-  roleToColor[0] = "white";
-  roleToColor[1] = "black";
-  roleToColor[2] = "red";
-  roleToColor[3] = "green";
-  roleToColor[4] = "blue";
-  roleToColor[5] = "yellow";
-  roleToColor[6] = "gold";
-  roleToColor[7] = "cyan";
-  roleToColor[8] = "magenta";
-  roleToColor[9] = "brown";
-  TIntStrH color;
-  TIntV roles;
-  for (int i = 0; i < G.GetXDim(); i++) {
-    float max = 0; 
-    int role = -1;
-    for (int j = 0; j < G.GetYDim(); j ++) {
-      if (G.At(i, j) > max) {
-        max = G.At(i, j);
-        role = j;
-      }
-    }
-    roles.Add(role);
+void PrintRole(const PUNGraph Graph, const TIntIntH& Roles) {
+  std::string RoleToColor[10] = { "white", "black", "red", "green", "blue",
+      "yellow", "gold", "cyan", "magenta", "brown" };
+  TIntStrH Color;
+  for (TIntIntH::TIter HI = Roles.BegI(); HI < Roles.EndI(); HI++) {
+    Color.AddDat(HI.GetKey(), RoleToColor[HI.GetDat()].c_str());
   }
-  for (int i = 0; i < roles.Len(); i++) {
-    color.AddDat(i) = roleToColor[roles.GetVal(i)].c_str();
-  }
-  TSnap::DrawGViz(Graph, gvlDot, "gviz_plot.png", "Dot", 1, color);
-  //TGraphViz::Plot<PNGraph>(Graph, gvlDot, "gviz_plot.png", "", color);
+  TSnap::DrawGViz(Graph, gvlDot, "gviz_plot.png", "Dot", 1, Color);
+  //TGraphViz::Plot<PNGraph>(Graph, gvlDot, "gviz_plot.png", "", Color);
 }
 
 int main(int argc, char* argv[]) {
@@ -49,8 +28,11 @@ int main(int argc, char* argv[]) {
   printf("finish feature extraction\n");
   printf("--features--\n");
   PrintFeatures(Features);
-  printf("--feature matrix--\n");
-  TFltVV V = ConvertFeatureToMatrix(Features); 
+  TIntIntH NodeIdMtxIdH = CreateNodeIdMtxIdxHash(Features);
+  printf("--finish create (node ID -> Mtx ID) hash--\n");
+  TFltVV V = ConvertFeatureToMatrix(Features, NodeIdMtxIdH); 
+  printf("--finish convert feature to matrix--\n");
+  //printf("--feature matrix--\n");
   //PrintMatrix(V);
 
   TFlt MnError = TFlt::Mx;
@@ -75,7 +57,8 @@ int main(int argc, char* argv[]) {
   PrintMatrix(FinalF);
   printf("using %d roles, min error: %f\n", NumRoles, MnError());
 
-  PrintRole(Graph, FinalG);
+  TIntIntH Roles = FindRoles(FinalG, NodeIdMtxIdH);
+  PrintRole(Graph, Roles);
 
   return 0;
 }

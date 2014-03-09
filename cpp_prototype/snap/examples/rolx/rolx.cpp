@@ -235,13 +235,15 @@ bool IsSimilarFeature(const TFtr& F1, const TFtr& F2,
   return true;
 }
 
-TFltVV ConvertFeatureToMatrix(const TIntFtrH& Features) {
+TFltVV ConvertFeatureToMatrix(const TIntFtrH& Features,
+    const TIntIntH& NodeIdMtxIdH) {
   const int NumNodes = Features.Len();
   const int NumFeatures = GetNumFeatures(Features);
   TFltVV FeaturesMtx(NumNodes, NumFeatures);
-  for (int i = 0; i < NumNodes; ++i) {
+  for (TIntFtrH::TIter HI = Features.BegI(); HI < Features.EndI(); HI++) {
+    int i = GetMtxIdx(HI.GetKey(), NodeIdMtxIdH);
     for (int j = 0; j < NumFeatures; ++j) {
-      FeaturesMtx(i, j) = Features.GetDat(i)[j];
+      FeaturesMtx(i, j) = HI.GetDat()[j];
     }
   }
   return FeaturesMtx;
@@ -351,4 +353,46 @@ TFlt ComputeDescriptionLength(const TFltVV& V, const TFltVV& G,
     }
   }
   return m + e;
+}
+
+TIntIntH CreateNodeIdMtxIdxHash(const TIntFtrH& Features) {
+  TIntIntH h;
+  TInt idx = 0;
+  for (TIntFtrH::TIter HI = Features.BegI(); HI < Features.EndI(); HI++) {
+    h.AddDat(HI.GetKey(), idx);
+    idx++;
+  }
+  return h;
+}
+
+int GetMtxIdx(const TInt NodeId, const TIntIntH& NodeIdMtxIdH) {
+  return NodeIdMtxIdH.GetDat(NodeId)();
+}
+
+int GetNodeId(const TInt MtxId, const TIntIntH& NodeIdMtxIdH) {
+  for (TIntIntH::TIter HI = NodeIdMtxIdH.BegI();
+      HI < NodeIdMtxIdH.EndI();
+      HI++) {
+    if (HI.GetDat() == MtxId) {
+      return HI.GetKey()();
+    }
+  }
+  return -1;
+}
+
+TIntIntH FindRoles(const TFltVV& G, const TIntIntH& NodeIdMtxIdH) {
+  TIntIntH Roles;
+  for (int i = 0; i < G.GetXDim(); i++) {
+    int Role = -1;
+    TFlt Max = TFlt::Mn;
+    for (int j = 0; j < G.GetYDim(); j ++) {
+      if (G(i, j) > Max) {
+        Max = G(i, j);
+        Role = j;
+      }
+    }
+    int NodeId = GetNodeId(i, NodeIdMtxIdH);
+    Roles.AddDat(NodeId, Role);
+  }
+  return Roles;
 }
