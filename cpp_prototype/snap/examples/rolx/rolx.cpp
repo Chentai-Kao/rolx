@@ -45,6 +45,7 @@ TFtr GetNthFeature(const TIntFtrH& Features, const int n) {
 
 TIntFtrH ExtractFeatures(const PUNGraph Graph) {
   TIntFtrH Features = CreateEmptyFeatures(Graph);
+  printf("finish createEmptyFeatures()\n");
   AddNeighborhoodFeatures(Graph, Features);
   printf("finish neighborhood features\n");
   AddRecursiveFeatures(Graph, Features);
@@ -54,7 +55,9 @@ TIntFtrH ExtractFeatures(const PUNGraph Graph) {
 
 void AddNeighborhoodFeatures(const PUNGraph Graph, TIntFtrH& Features) {
   AddLocalFeatures(Graph, Features);
+  printf("finish recursive features\n");
   AddEgonetFeatures(Graph, Features);
+  printf("finish egonet features\n");
 }
 
 void AddRecursiveFeatures(const PUNGraph Graph, TIntFtrH& Features) {
@@ -76,7 +79,7 @@ void AddRecursiveFeatures(const PUNGraph Graph, TIntFtrH& Features) {
 
 void AddLocalFeatures(const PUNGraph Graph, TIntFtrH& Features) {
   for (TUNGraph::TNodeI NI = Graph->BegNI(); NI < Graph->EndNI(); NI++) {
-    Features[TInt(NI.GetId())].Add(NI.GetInDeg());
+    Features.GetDat(TInt(NI.GetId())).Add(NI.GetInDeg());
   }
 }
 
@@ -85,8 +88,8 @@ void AddEgonetFeatures(const PUNGraph Graph, TIntFtrH& Features) {
     int NId = NI.GetId();
     int ArndEdges;
     PUNGraph Egonet = GetEgonet(Graph, NId, ArndEdges);
-    Features[NId].Add(Egonet->GetEdges());
-    Features[NId].Add(ArndEdges);
+    Features.GetDat(NId).Add(Egonet->GetEdges());
+    Features.GetDat(NId).Add(ArndEdges);
   }
 }
 
@@ -102,10 +105,10 @@ TIntFtrH GenerateRecursiveFeatures(const PUNGraph Graph,
       float Sum = 0;
       for (int j = 0; j < NI.GetInDeg(); ++j) {
         int NbrNId = NI.GetInNId(j);
-        Sum += CurrFeatures[NbrNId][i]();
+        Sum += CurrFeatures.GetDat(NbrNId)[i]();
       }
-      NewFeatures[NI.GetId()].Add(Sum);
-      NewFeatures[NI.GetId()].Add(0 == NI.GetInDeg()?
+      NewFeatures.GetDat(NI.GetId()).Add(Sum);
+      NewFeatures.GetDat(NI.GetId()).Add(0 == NI.GetInDeg()?
           0 : (float(Sum) / NI.GetInDeg()));
     }
   }
@@ -131,10 +134,10 @@ void AppendFeatures(TIntFtrH& DstFeatures, const TIntFtrH& SrcFeatures,
       HI++) {
     const TFtr& f = HI.GetDat();
     if (ColIdx >= 0) {
-      DstFeatures[HI.GetKey()].Add(f[ColIdx]);
+      DstFeatures.GetDat(HI.GetKey()).Add(f[ColIdx]);
     } else {
       for (int i = 0; i < f.Len(); ++i) {
-        DstFeatures[HI.GetKey()].Add(f[i]);
+        DstFeatures.GetDat(HI.GetKey()).Add(f[i]);
       }
     }
   }
@@ -214,7 +217,7 @@ void AssignBinValue(const TVec<TInt>& SortedNId, const float BinFraction,
     int NumToAssign = ceil(BinFraction * (NumNodes - NumAssigned));
     for (int i = NumAssigned; i < NumAssigned + NumToAssign; ++i) {
       int NId = SortedNId[i];
-      LogBinFeatures[NId].Add(BinValue);
+      LogBinFeatures.GetDat(NId).Add(BinValue);
     }
     NumAssigned += NumToAssign;
     ++BinValue;
@@ -238,7 +241,7 @@ TFltVV ConvertFeatureToMatrix(const TIntFtrH& Features) {
   TFltVV FeaturesMtx(NumNodes, NumFeatures);
   for (int i = 0; i < NumNodes; ++i) {
     for (int j = 0; j < NumFeatures; ++j) {
-      FeaturesMtx(i, j) = Features[i][j];
+      FeaturesMtx(i, j) = Features.GetDat(i)[j];
     }
   }
   return FeaturesMtx;
@@ -286,7 +289,8 @@ void CalcNonNegativeFactorization(const TFltVV& V, const int NumRoles,
   for (int NumIter = 0; NumIter < 50; ++NumIter) {
     TLinAlg::Multiply(W, H, Product);
     // update W
-#pragma omp parallel for
+    printf("first loop\n");
+//#pragma omp parallel for
     for (int k = 0; k < NumNodes * NumRoles; ++k) {
       int i = k / NumRoles;
       int a = k % NumRoles;
@@ -298,7 +302,8 @@ void CalcNonNegativeFactorization(const TFltVV& V, const int NumRoles,
       }
       W(i, a) *= SumU;
     }
-#pragma omp parallel for
+    printf("second loop\n");
+//#pragma omp parallel for
     for (int k = 0; k < NumNodes * NumRoles; ++k) {
       int i = k / NumRoles;
       int a = k % NumRoles;
@@ -310,8 +315,9 @@ void CalcNonNegativeFactorization(const TFltVV& V, const int NumRoles,
         W(i, a) /= SumJ;
       }
     }
+    printf("third loop:%d*%d=%d\n", NumRoles, NumFeatures, NumRoles * NumFeatures);
     // update H
-#pragma omp parallel for
+//#pragma omp parallel for
     for (int k = 0; k < NumRoles * NumFeatures; ++k) {
       int a = k / NumFeatures;
       int u = k % NumFeatures;
