@@ -290,7 +290,7 @@ void CalcNonNegativeFactorization(const TFltVV& V, const int NumRoles,
     TLinAlg::Multiply(W, H, Product);
     // update W
     printf("first loop\n");
-//#pragma omp parallel for
+#pragma omp parallel for
     for (int k = 0; k < NumNodes * NumRoles; ++k) {
       int i = k / NumRoles;
       int a = k % NumRoles;
@@ -303,7 +303,7 @@ void CalcNonNegativeFactorization(const TFltVV& V, const int NumRoles,
       W(i, a) *= SumU;
     }
     printf("second loop\n");
-//#pragma omp parallel for
+#pragma omp parallel for
     for (int k = 0; k < NumNodes * NumRoles; ++k) {
       int i = k / NumRoles;
       int a = k % NumRoles;
@@ -317,7 +317,7 @@ void CalcNonNegativeFactorization(const TFltVV& V, const int NumRoles,
     }
     printf("third loop:%d*%d=%d\n", NumRoles, NumFeatures, NumRoles * NumFeatures);
     // update H
-//#pragma omp parallel for
+#pragma omp parallel for
     for (int k = 0; k < NumRoles * NumFeatures; ++k) {
       int a = k / NumFeatures;
       int u = k % NumFeatures;

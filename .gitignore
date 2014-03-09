@@ -5,3 +5,4 @@ test.txt
 *.png
 *.dot
 python_prototype/small.py
+cpp_prototype/snap/examples/rolx/prototype
