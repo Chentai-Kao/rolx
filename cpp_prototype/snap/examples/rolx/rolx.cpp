@@ -267,11 +267,20 @@ void PrintMatrix(const TFltVV& Matrix) {
 }
 
 TFltVV CreateRandMatrix(const int XDim, const int YDim) {
-  srand(time(NULL));
+  //srand(time(NULL));
+  //TFltVV Matrix(XDim, YDim);
+  //for (int i = 0; i < XDim; ++i) {
+  //  for (int j = 0; j < YDim; ++j) {
+  //    Matrix(i, j) = (double) rand() / RAND_MAX;
+  //  }
+  //}
+  //return Matrix;
+  int seed = 7;
   TFltVV Matrix(XDim, YDim);
   for (int i = 0; i < XDim; ++i) {
     for (int j = 0; j < YDim; ++j) {
-      Matrix(i, j) = (double) rand() / RAND_MAX;
+      Matrix(i, j) = (double)seed / 100003;
+      seed = (seed * 55049) % 100003;
     }
   }
   return Matrix;
