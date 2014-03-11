@@ -296,12 +296,14 @@ void CalcNonNegativeFactorization(const TFltVV& V, const int NumRoles,
   int NumFeatures = V.GetYDim();
   W = CreateRandMatrix(NumNodes, NumRoles);
   H = CreateRandMatrix(NumRoles, NumFeatures);
+  TFltVV NewW = CreateRandMatrix(NumNodes, NumRoles);
+  TFltVV NewH = CreateRandMatrix(NumRoles, NumFeatures);
   TFltVV Product(NumNodes, NumFeatures);
-  for (int NumIter = 0; NumIter < 50; ++NumIter) {
+  for (int NumIter = 0; NumIter <200; ++NumIter) {
     TLinAlg::Multiply(W, H, Product);
     // update W
-    printf("first loop\n");
-#pragma omp parallel for
+    //printf("first loop\n");
+//#pragma omp parallel for
     for (int k = 0; k < NumNodes * NumRoles; ++k) {
       int i = k / NumRoles;
       int a = k % NumRoles;
@@ -311,24 +313,24 @@ void CalcNonNegativeFactorization(const TFltVV& V, const int NumRoles,
           SumU += V(i, u) / Product(i, u) * H(a, u);
         }
       }
-      W(i, a) *= SumU;
+      NewW(i, a) = W(i,a) * SumU;
     }
-    printf("second loop\n");
-#pragma omp parallel for
+    //printf("second loop\n");
+//#pragma omp parallel for
     for (int k = 0; k < NumNodes * NumRoles; ++k) {
       int i = k / NumRoles;
       int a = k % NumRoles;
       float SumJ = 0;
       for (int j = 0; j < NumNodes; ++j) {
-        SumJ += W(j, a);
+        SumJ += NewW(j, a);
       }
       if (!FltIsZero(SumJ)) {
-        W(i, a) /= SumJ;
+        NewW(i, a) /= SumJ;
       }
     }
-    printf("third loop:%d*%d=%d\n", NumRoles, NumFeatures, NumRoles * NumFeatures);
+    //printf("third loop:%d*%d=%d\n", NumRoles, NumFeatures, NumRoles * NumFeatures);
     // update H
-#pragma omp parallel for
+//#pragma omp parallel for
     for (int k = 0; k < NumRoles * NumFeatures; ++k) {
       int a = k / NumFeatures;
       int u = k % NumFeatures;
@@ -338,8 +340,10 @@ void CalcNonNegativeFactorization(const TFltVV& V, const int NumRoles,
           SumI += W(i, a) * V(i, u) / Product(i, u);
         }
       }
-      H(a, u) *= SumI;
+      NewH(a, u) =H(a, u) * SumI;
     }
+    W = NewW;
+    H = NewH;
   }
 }
 
@@ -354,11 +358,12 @@ TFlt ComputeDescriptionLength(const TFltVV& V, const TFltVV& G,
     for (int j = 0; j < V.GetYDim(); ++j) {
       TFlt ValueV = V(i, j);
       TFlt ValueGF = GF(i, j);
-      if (FltIsZero(ValueV)) {
+      e += ValueV * TMath::Log(ValueGF) - ValueGF;
+      /*if (FltIsZero(ValueV)) {
         e += ValueGF;
       } else if (!FltIsZero(ValueGF)) {
         e += ValueV * TMath::Log(ValueV / ValueGF) - ValueV + ValueGF;
-      }
+      }*/
     }
   }
   return m + e;

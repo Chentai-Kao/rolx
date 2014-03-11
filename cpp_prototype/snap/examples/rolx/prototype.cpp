@@ -16,7 +16,7 @@ int main(int argc, char* argv[]) {
   TIntFtrH Features = ExtractFeatures(Graph);
   printf("finish feature extraction\n");
   printf("--features--\n");
-  PrintFeatures(Features);
+  //PrintFeatures(Features);
   TIntIntH NodeIdMtxIdH = CreateNodeIdMtxIdxHash(Features);
   printf("--finish create (node ID -> Mtx ID) hash--\n");
   TFltVV V = ConvertFeatureToMatrix(Features, NodeIdMtxIdH); 
@@ -41,14 +41,14 @@ int main(int argc, char* argv[]) {
     }
   }
   printf("--FinalG--\n");
-  PrintMatrix(FinalG);
+  //PrintMatrix(FinalG);
   printf("--FinalF--\n");
-  PrintMatrix(FinalF);
+  //PrintMatrix(FinalF);
   printf("using %d roles, min error: %f\n", NumRoles, MnError());
 
   TIntIntH Roles = FindRoles(FinalG, NodeIdMtxIdH);
   PrintRoles(Roles);
-  PlotRoles(Graph, Roles);
+  //PlotRoles(Graph, Roles);
 
   return 0;
 }
