@@ -47,7 +47,7 @@ int main(int argc, char* argv[]) {
   printf("using %d roles, min error: %f\n", NumRoles, MnError());
 
   TIntIntH Roles = FindRoles(FinalG, NodeIdMtxIdH);
-  PrintRoles(Roles);
+  FPrintRoles(Roles, "roles.txt");
   //PlotRoles(Graph, Roles);
 
   return 0;

@@ -466,3 +466,12 @@ void FPrintMatrix(const TFltVV& Matrix, char* path) {
   }
   fclose(fp);
 }
+
+void FPrintRoles(const TIntIntH& Roles, char* path) {
+  FILE *fp;
+  fp = fopen(path, "w");
+  fprintf(fp, "--roles (node ID role ID)--\n\n");
+  for (TIntIntH::TIter HI = Roles.BegI(); HI < Roles.EndI(); HI++) {
+    fprintf(fp, "(%d %d)\n", HI.GetKey()(), HI.GetDat()());
+  }
+}
