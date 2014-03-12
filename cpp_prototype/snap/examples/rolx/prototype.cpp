@@ -29,7 +29,9 @@ int main(int argc, char* argv[]) {
   int NumRoles = -1;
   for (int r = 3; r < 4; ++r) {
     TFltVV G, F;
+    time_t t = time(NULL);
     CalcNonNegativeFactorization(V, r, G, F);
+    printf("Factorization use %f seconds\n", difftime(time(NULL), t));
     printf("finish factorization for r=%d\n", r);
     //PrintMatrix(G);
     TFlt Error = ComputeDescriptionLength(V, G, F);
@@ -40,9 +42,9 @@ int main(int argc, char* argv[]) {
       NumRoles = r;
     }
   }
-  printf("--FinalG--\n");
+  //printf("--FinalG--\n");
   //PrintMatrix(FinalG);
-  printf("--FinalF--\n");
+  //printf("--FinalF--\n");
   //PrintMatrix(FinalF);
   printf("using %d roles, min error: %f\n", NumRoles, MnError());
 

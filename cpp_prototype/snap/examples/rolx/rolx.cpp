@@ -294,8 +294,8 @@ void CalcNonNegativeFactorization(const TFltVV& V, const int NumRoles,
     TFltVV& W, TFltVV& H) {
   int NumNodes = V.GetXDim();
   int NumFeatures = V.GetYDim();
-  double e = 0, old_e = 100;
-  double threshhold = 1;
+  //double e = 0, old_e = 100;
+  double threshhold = 0.01;
   W = CreateRandMatrix(NumNodes, NumRoles);
   H = CreateRandMatrix(NumRoles, NumFeatures);
   //FPrintMatrix(W, "w.txt");
@@ -305,24 +305,24 @@ void CalcNonNegativeFactorization(const TFltVV& V, const int NumRoles,
   TFltVV Product(NumNodes, NumFeatures);
   TFltV Sum(NumRoles);
   TFltVV *w = &W, *h = &H, *newW = &NewW, *newH = &NewH, *tmp;
-  while (abs(e - old_e) > threshhold) {
+  while (1){ 
+  //while (abs(e - old_e) > threshhold) {
     TLinAlg::Multiply(*w, *h, Product);
-
     //converge condition
-    old_e = e;
-    e = 0;
-    for (int i = 0; i < V.GetXDim(); ++i) {
-      for (int j = 0; j < V.GetYDim(); ++j) {
-        e += V(i, j) * TMath::Log(Product(i, j)) - Product(i, j);
-      }
-    }
+    //old_e = e;
+    //e = 0;
+    //for (int i = 0; i < V.GetXDim(); ++i) {
+    //  for (int j = 0; j < V.GetYDim(); ++j) {
+    //    e += V(i, j) * TMath::Log(Product(i, j)) - Product(i, j);
+    //  }
+    //}
     // update W
     //printf("first loop\n");
 #pragma omp parallel for
     for (int k = 0; k < NumNodes * NumRoles; ++k) {
       int i = k / NumRoles;
       int a = k % NumRoles;
-      float SumU = 0;
+      double SumU = 0;
       for (int u = 0; u < NumFeatures; ++u) {
         if (!FltIsZero(Product(i, u))) {
           SumU += V(i, u) / Product(i, u) * h->At(a, u);
@@ -350,17 +350,20 @@ void CalcNonNegativeFactorization(const TFltVV& V, const int NumRoles,
     //printf("third loop:%d*%d=%d\n", NumRoles, NumFeatures, NumRoles * NumFeatures);
     // update H
 #pragma omp parallel for
+    double converge = 0;
     for (int k = 0; k < NumRoles * NumFeatures; ++k) {
       int a = k / NumFeatures;
       int u = k % NumFeatures;
-      float SumI = 0;
+      double SumI = 0;
       for (int i = 0; i < NumNodes; ++i) {
         if (!FltIsZero(Product(i, u))) {
           SumI += w->At(i, a) * V(i, u) / Product(i, u);
         }
       }
       newH->At(a, u) = h->At(a, u) * SumI;
+      converge += abs(SumI - 1);
     }
+    if (converge / (NumRoles * NumFeatures) < threshhold) break;
     //FPrintMatrix(NewH, "NewH.txt");
     tmp = w; w = newW; newW = tmp;
     tmp = h; h = newH; newH = tmp;
