@@ -450,9 +450,9 @@ void PrintRoles(const TIntIntH& Roles) {
   printf("}\n");
 }
 
-void FPrintMatrix(const TFltVV& Matrix, char* path) {
+void FPrintMatrix(const TFltVV& Matrix, const std::string& path) {
   FILE *fp;
-  fp = fopen(path, "w");
+  fp = fopen(path.data(), "w");
   int XDim = Matrix.GetXDim();
   int YDim = Matrix.GetYDim();
   for (int i = 0; i < XDim; ++i) {
@@ -467,11 +467,12 @@ void FPrintMatrix(const TFltVV& Matrix, char* path) {
   fclose(fp);
 }
 
-void FPrintRoles(const TIntIntH& Roles, char* path) {
+void FPrintRoles(const TIntIntH& Roles, const std::string& path) {
   FILE *fp;
-  fp = fopen(path, "w");
+  fp = fopen(path.data(), "w");
   fprintf(fp, "--roles (node ID role ID)--\n\n");
   for (TIntIntH::TIter HI = Roles.BegI(); HI < Roles.EndI(); HI++) {
-    fprintf(fp, "(%d %d)\n", HI.GetKey()(), HI.GetDat()());
+    fprintf(fp, "%d\t%d\n", HI.GetKey()(), HI.GetDat()());
   }
+  fclose(fp);
 }

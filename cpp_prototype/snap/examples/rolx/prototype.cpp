@@ -27,7 +27,7 @@ int main(int argc, char* argv[]) {
   TFlt MnError = TFlt::Mx;
   TFltVV FinalG, FinalF;
   int NumRoles = -1;
-  for (int r = 4; r < 5; ++r) {
+  for (int r = 3; r < 4; ++r) {
     TFltVV G, F;
     CalcNonNegativeFactorization(V, r, G, F);
     printf("finish factorization for r=%d\n", r);
