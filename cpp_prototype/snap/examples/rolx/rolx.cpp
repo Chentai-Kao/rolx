@@ -296,6 +296,7 @@ void CalcNonNegativeFactorization(const TFltVV& V, const int NumRoles,
   int NumFeatures = V.GetYDim();
   //double e = 0, old_e = 100;
   double threshhold = 0.01;
+  double converge = 0;
   W = CreateRandMatrix(NumNodes, NumRoles);
   H = CreateRandMatrix(NumRoles, NumFeatures);
   //FPrintMatrix(W, "w.txt");
@@ -305,8 +306,9 @@ void CalcNonNegativeFactorization(const TFltVV& V, const int NumRoles,
   TFltVV Product(NumNodes, NumFeatures);
   TFltV Sum(NumRoles);
   TFltVV *w = &W, *h = &H, *newW = &NewW, *newH = &NewH, *tmp;
-  while (1){ 
   //while (abs(e - old_e) > threshhold) {
+  while (1) {
+    converge = 0;
     TLinAlg::Multiply(*w, *h, Product);
     //converge condition
     //old_e = e;
@@ -336,21 +338,22 @@ void CalcNonNegativeFactorization(const TFltVV& V, const int NumRoles,
     for (int i = 0; i < NumRoles; i++) {
       Sum[i] = 0;
     }
-    for (int i = 0; i < NumNodes; i++) {
-      for (int j = 0; j < NumRoles; j++) {
+#pragma omp parallel for
+    for (int j = 0; j < NumRoles; j++) {
+      for (int i = 0; i < NumNodes; i++) {
         Sum[j] += newW->At(i, j);
       }
     }
-    for (int i = 0; i < NumNodes; i++) {
-      for (int j = 0; j < NumRoles; j++) {
-        newW->At(i, j) /= Sum[j];
-      }
+#pragma omp parallel for
+    for (int k = 0; k < NumNodes * NumRoles; ++k) {
+      int i = k / NumRoles;
+      int j = k % NumRoles;
+      newW->At(i, j) /= Sum[j];
     }
     //FPrintMatrix(NewW, "NewW.txt");
     //printf("third loop:%d*%d=%d\n", NumRoles, NumFeatures, NumRoles * NumFeatures);
     // update H
 #pragma omp parallel for
-    double converge = 0;
     for (int k = 0; k < NumRoles * NumFeatures; ++k) {
       int a = k / NumFeatures;
       int u = k % NumFeatures;
