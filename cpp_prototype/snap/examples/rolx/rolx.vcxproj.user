@@ -4,6 +4,6 @@
     <LocalDebuggerCommand>
     </LocalDebuggerCommand>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommandArguments>dataset/Email-Enron-200.txt</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>dataset/Email-Enron-1000.txt</LocalDebuggerCommandArguments>
   </PropertyGroup>
 </Project>

@@ -228,7 +228,7 @@ bool IsSimilarFeature(const TFtr& F1, const TFtr& F2,
     const int SimilarityThreshold) {
   IAssert(F1.Len() == F2.Len());
   for (int i = 0; i < F1.Len(); ++i) {
-    if (abs(F1[i] - F2[i]) > SimilarityThreshold) {
+    if (TFlt::Abs(F1[i] - F2[i]) > SimilarityThreshold) {
       return false;
     }
   }
@@ -292,11 +292,9 @@ bool FltIsZero(const TFlt f) {
 
 void CalcNonNegativeFactorization(const TFltVV& V, const int NumRoles,
     TFltVV& W, TFltVV& H) {
+  double threshhold = 0.005;
   int NumNodes = V.GetXDim();
   int NumFeatures = V.GetYDim();
-  //double e = 0, old_e = 100;
-  double threshhold = 0.01;
-  double converge = 0;
   W = CreateRandMatrix(NumNodes, NumRoles);
   H = CreateRandMatrix(NumRoles, NumFeatures);
   //FPrintMatrix(W, "w.txt");
@@ -306,67 +304,50 @@ void CalcNonNegativeFactorization(const TFltVV& V, const int NumRoles,
   TFltVV Product(NumNodes, NumFeatures);
   TFltV Sum(NumRoles);
   TFltVV *w = &W, *h = &H, *newW = &NewW, *newH = &NewH, *tmp;
-  //while (abs(e - old_e) > threshhold) {
   while (1) {
-    converge = 0;
     TLinAlg::Multiply(*w, *h, Product);
-    //converge condition
-    //old_e = e;
-    //e = 0;
-    //for (int i = 0; i < V.GetXDim(); ++i) {
-    //  for (int j = 0; j < V.GetYDim(); ++j) {
-    //    e += V(i, j) * TMath::Log(Product(i, j)) - Product(i, j);
-    //  }
-    //}
     // update W
-    //printf("first loop\n");
-#pragma omp parallel for
-    for (int k = 0; k < NumNodes * NumRoles; ++k) {
-      int i = k / NumRoles;
-      int a = k % NumRoles;
-      double SumU = 0;
-      for (int u = 0; u < NumFeatures; ++u) {
-        if (!FltIsZero(Product(i, u))) {
-          SumU += V(i, u) / Product(i, u) * h->At(a, u);
+    for (int i = 0; i < NumNodes; i++) {
+      for (int a = 0; a < NumRoles; a++) {
+        double SumU = 0;
+        for (int u = 0; u < NumFeatures; ++u) {
+          if (!FltIsZero(Product(i, u))) {
+            SumU += V(i, u) / Product(i, u) * h->At(a, u);
+          }
         }
+        newW->At(i, a) = w->At(i, a) * SumU;
       }
-      newW->At(i, a) = w->At(i,a) * SumU;
     }
     //FPrintMatrix(NewW, "NewW.txt");
-    //printf("second loop\n");
-#pragma omp parallel for
     for (int i = 0; i < NumRoles; i++) {
       Sum[i] = 0;
     }
-#pragma omp parallel for
-    for (int j = 0; j < NumRoles; j++) {
-      for (int i = 0; i < NumNodes; i++) {
+    for (int i = 0; i < NumNodes; i++) {
+      for (int j = 0; j < NumRoles; j++) {
         Sum[j] += newW->At(i, j);
       }
     }
-#pragma omp parallel for
-    for (int k = 0; k < NumNodes * NumRoles; ++k) {
-      int i = k / NumRoles;
-      int j = k % NumRoles;
-      newW->At(i, j) /= Sum[j];
+    for (int i = 0; i < NumNodes; i++) {
+      for (int j = 0; j < NumRoles; j++) {
+        newW->At(i, j) /= Sum[j];
+      }
     }
     //FPrintMatrix(NewW, "NewW.txt");
-    //printf("third loop:%d*%d=%d\n", NumRoles, NumFeatures, NumRoles * NumFeatures);
     // update H
-#pragma omp parallel for
-    for (int k = 0; k < NumRoles * NumFeatures; ++k) {
-      int a = k / NumFeatures;
-      int u = k % NumFeatures;
-      double SumI = 0;
-      for (int i = 0; i < NumNodes; ++i) {
-        if (!FltIsZero(Product(i, u))) {
-          SumI += w->At(i, a) * V(i, u) / Product(i, u);
+    double diff = 0;
+    for (int a = 0; a < NumRoles; a++) {
+      for (int u = 0; u < NumFeatures; u++) {
+        double SumI = 0;
+        for (int i = 0; i < NumNodes; ++i) {
+          if (!FltIsZero(Product(i, u))) {
+            SumI += w->At(i, a) * V(i, u) / Product(i, u);
+          }
         }
+        newH->At(a, u) = h->At(a, u) * SumI;
+        diff += TFlt::Abs(SumI - 1);
       }
-      newH->At(a, u) = h->At(a, u) * SumI;
-      converge += abs(SumI - 1);
     }
-    if (converge / (NumRoles * NumFeatures) < threshhold) break;
+    if (diff / (NumRoles * NumFeatures) < threshhold) break;
     //FPrintMatrix(NewH, "NewH.txt");
     tmp = w; w = newW; newW = tmp;
     tmp = h; h = newH; newH = tmp;
