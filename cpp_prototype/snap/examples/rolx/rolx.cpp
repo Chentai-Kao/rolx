@@ -279,8 +279,8 @@ TFltVV CreateRandMatrix(const int XDim, const int YDim) {
   TFltVV Matrix(XDim, YDim);
   for (int i = 0; i < XDim; ++i) {
     for (int j = 0; j < YDim; ++j) {
-      Matrix(i, j) = (double)seed / 100003;
-      seed = (seed * 55049) % 100003;
+      Matrix(i, j) = (double)seed / 10007;
+      seed = (seed * 1871) % 10007;
     }
   }
   return Matrix;
@@ -294,13 +294,24 @@ void CalcNonNegativeFactorization(const TFltVV& V, const int NumRoles,
     TFltVV& W, TFltVV& H) {
   int NumNodes = V.GetXDim();
   int NumFeatures = V.GetYDim();
+  TFlt e = 0;
   W = CreateRandMatrix(NumNodes, NumRoles);
   H = CreateRandMatrix(NumRoles, NumFeatures);
-  TFltVV NewW = CreateRandMatrix(NumNodes, NumRoles);
-  TFltVV NewH = CreateRandMatrix(NumRoles, NumFeatures);
+  FPrintMatrix(W, "w.txt");
+  FPrintMatrix(H, "h.txt");
+  TFltVV NewW(NumNodes, NumRoles);
+  TFltVV NewH(NumRoles, NumFeatures);
   TFltVV Product(NumNodes, NumFeatures);
-  for (int NumIter = 0; NumIter <200; ++NumIter) {
+  for (int NumIter = 0; NumIter <50; ++NumIter) {
     TLinAlg::Multiply(W, H, Product);
+    e = 0;
+    for (int i = 0; i < V.GetXDim(); ++i) {
+      for (int j = 0; j < V.GetYDim(); ++j) {
+        TFlt ValueV = V(i, j);
+        TFlt ValueGF = Product(i, j);
+        e += ValueV * TMath::Log(ValueGF) - ValueGF;
+      }
+    }
     // update W
     //printf("first loop\n");
 //#pragma omp parallel for
@@ -315,9 +326,24 @@ void CalcNonNegativeFactorization(const TFltVV& V, const int NumRoles,
       }
       NewW(i, a) = W(i,a) * SumU;
     }
+    FPrintMatrix(NewW, "NewW.txt");
     //printf("second loop\n");
 //#pragma omp parallel for
-    for (int k = 0; k < NumNodes * NumRoles; ++k) {
+    TFltV Sum(NumRoles);
+    for (int i = 0; i < NumRoles; i++) {
+      Sum[i] = 0;
+    }
+    for (int i = 0; i < NumNodes; i++) {
+      for (int j = 0; j < NumRoles; j++) {
+        Sum[j] += NewW(i, j);
+      }
+    }
+    for (int i = 0; i < NumNodes; i++) {
+      for (int j = 0; j < NumRoles; j++) {
+        NewW(i, j) /= Sum[j];
+      }
+    }
+    /*for (int k = 0; k < NumNodes * NumRoles; ++k) {
       int i = k / NumRoles;
       int a = k % NumRoles;
       float SumJ = 0;
@@ -327,7 +353,8 @@ void CalcNonNegativeFactorization(const TFltVV& V, const int NumRoles,
       if (!FltIsZero(SumJ)) {
         NewW(i, a) /= SumJ;
       }
-    }
+    }*/
+    FPrintMatrix(NewW, "NewW.txt");
     //printf("third loop:%d*%d=%d\n", NumRoles, NumFeatures, NumRoles * NumFeatures);
     // update H
 //#pragma omp parallel for
@@ -342,6 +369,7 @@ void CalcNonNegativeFactorization(const TFltVV& V, const int NumRoles,
       }
       NewH(a, u) =H(a, u) * SumI;
     }
+    FPrintMatrix(NewH, "NewH.txt");
     W = NewW;
     H = NewH;
   }
@@ -429,4 +457,21 @@ void PrintRoles(const TIntIntH& Roles) {
     printf("(%d: %d)\n", HI.GetKey()(), HI.GetDat()());
   }
   printf("}\n");
+}
+
+void FPrintMatrix(const TFltVV& Matrix, char* path) {
+  FILE *fp;
+  fp = fopen(path, "w");
+  int XDim = Matrix.GetXDim();
+  int YDim = Matrix.GetYDim();
+  for (int i = 0; i < XDim; ++i) {
+    for (int j = 0; j < YDim; ++j) {
+      if (j != 0) {
+        fprintf(fp, " ");
+      }
+      fprintf(fp, "%f", Matrix(i, j)());
+    }
+    fprintf(fp, "\n");
+  }
+  fclose(fp);
 }

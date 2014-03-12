@@ -49,4 +49,6 @@ TIntIntH FindRoles(const TFltVV& G, const TIntIntH& NodeIdMtxIdH);
 void PlotRoles(const PUNGraph Graph, const TIntIntH& Roles);
 void PrintRoles(const TIntIntH& Roles);
 
+void FPrintMatrix(const TFltVV& Matrix, char* path);
+
 #endif

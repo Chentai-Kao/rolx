@@ -1,0 +1,15 @@
+--------
+E:\Stanford\Winter2014\SNAP\rolx\cpp_prototype\snap\examples\Debug\rolx.exe.Err
+Tue Mar 11 17:56:04 2014
+Execution stopped: (0<=X)&&(X<int(XDim))&&(0<=Y)&&(Y<int(YDim)), file e:\stanford\winter2014\snap\rolx\cpp_prototype\snap\glib-core\ds.h, line 3011
+--------
+--------
+E:\Stanford\Winter2014\SNAP\rolx\cpp_prototype\snap\examples\Debug\rolx.exe.Err
+Tue Mar 11 18:01:09 2014
+Execution stopped: (0<=X)&&(X<int(XDim))&&(0<=Y)&&(Y<int(YDim)), file e:\stanford\winter2014\snap\rolx\cpp_prototype\snap\glib-core\ds.h, line 3011
+--------
+--------
+E:\Stanford\Winter2014\SNAP\rolx\cpp_prototype\snap\examples\Debug\rolx.exe.Err
+Tue Mar 11 18:03:20 2014
+Execution stopped: (0<=X)&&(X<int(XDim))&&(0<=Y)&&(Y<int(YDim)), file e:\stanford\winter2014\snap\rolx\cpp_prototype\snap\glib-core\ds.h, line 3011
+--------
