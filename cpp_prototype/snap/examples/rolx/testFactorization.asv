@@ -44,15 +44,20 @@
 
 
 %validate the C++ version step by step
-clear all; close all; clc;
+clear all; close all; 
+clc;
 load v.txt;
-w = rand(86818, 3);
-h = rand(3, 55);
+for roleNum = 2:7
+w = rand(86818, roleNum);
+h = rand(roleNum, 55);
 cost = 0; new_cost = 100;
-while (abs(cost - new_cost)/cost > 0.00001)
+i = 0;
+while (abs((cost - new_cost)/new_cost) > 1e-6)
+    i = i + 1
     cost = new_cost;
-    new_cost = sum(sum(v .* log(w * h) - w * h))
     prod = w * h;
+    new_cost = sum(sum(v .* log(prod) - prod));
+    abs((cost - new_cost)/new_cost)
     new_w = w .* ((v ./ prod) * h');
 %     load NewW.txt;
 %     max(max(abs(new_w - NewW)))
@@ -64,5 +69,7 @@ while (abs(cost - new_cost)/cost > 0.00001)
 %     max(max(abs(new_h - NewH)))
     w = new_w;
     h = new_h;
-    %e = sum(sum(v.*log(v./(w*h))-v+(w*h)))
+%     e = sum(sum(v.*log(v./(w*h))-v+(w*h)))
 end
+[y,role] = max(w');
+roles = [roles;role'];

@@ -267,23 +267,23 @@ void PrintMatrix(const TFltVV& Matrix) {
 }
 
 TFltVV CreateRandMatrix(const int XDim, const int YDim) {
-  srand(time(NULL));
-  TFltVV Matrix(XDim, YDim);
-  for (int i = 0; i < XDim; ++i) {
-    for (int j = 0; j < YDim; ++j) {
-      Matrix(i, j) = (double) rand() / RAND_MAX;
-    }
-  }
-  return Matrix;
-  //int seed = 7;
+  //srand(time(NULL));
   //TFltVV Matrix(XDim, YDim);
   //for (int i = 0; i < XDim; ++i) {
   //  for (int j = 0; j < YDim; ++j) {
-  //    Matrix(i, j) = (double)seed / 10007;
-  //    seed = (seed * 1871) % 10007;
+  //    Matrix(i, j) = (double) rand() / RAND_MAX;
   //  }
   //}
   //return Matrix;
+  int seed = 13;
+  TFltVV Matrix(XDim, YDim);
+  for (int i = 0; i < XDim; ++i) {
+    for (int j = 0; j < YDim; ++j) {
+      Matrix(i, j) = (double)seed / 10007;
+      seed = (seed * 1871) % 10007;
+    }
+  }
+  return Matrix;
 }
 
 bool FltIsZero(const TFlt f) {
@@ -292,7 +292,8 @@ bool FltIsZero(const TFlt f) {
 
 void CalcNonNegativeFactorization(const TFltVV& V, const int NumRoles,
     TFltVV& W, TFltVV& H) {
-  double threshhold = 0.05;
+  double threshhold = 1e-6;
+  double Cost = 100, NewCost = 0;
   int NumNodes = V.GetXDim();
   int NumFeatures = V.GetYDim();
   W = CreateRandMatrix(NumNodes, NumRoles);
@@ -305,8 +306,16 @@ void CalcNonNegativeFactorization(const TFltVV& V, const int NumRoles,
   TFltV Sum(NumRoles);
   TFltVV *w = &W, *h = &H, *newW = &NewW, *newH = &NewH, *tmp;
   int IterNum = 1;
-  while (1) {
+  while (TFlt::Abs((NewCost - Cost)/Cost) > threshhold) {
     TLinAlg::Multiply(*w, *h, Product);
+    //converge condition
+    Cost = NewCost;
+    NewCost = 0;
+    for (int i = 0; i < NumNodes; i++) {
+      for (int j = 0; j < NumFeatures; j++) {
+        NewCost += V(i, j) * TMath::Log(Product(i, j)) - Product(i, j);
+      }
+    }
     // update W
     for (int i = 0; i < NumNodes; i++) {
       for (int a = 0; a < NumRoles; a++) {
@@ -335,7 +344,7 @@ void CalcNonNegativeFactorization(const TFltVV& V, const int NumRoles,
     }
     //FPrintMatrix(NewW, "NewW.txt");
     // update H
-    //double diff = 0;
+    double diff = 0;
     for (int a = 0; a < NumRoles; a++) {
       for (int u = 0; u < NumFeatures; u++) {
         double SumI = 0;
@@ -348,7 +357,7 @@ void CalcNonNegativeFactorization(const TFltVV& V, const int NumRoles,
         //diff += TFlt::Abs(SumI - 1);
       }
     }
-    //printf("iteration %d, diff is %f\n", IterNum++, diff / (NumRoles * NumFeatures));
+    printf("iteration %d, cost is %f\n", IterNum++, NewCost);
     //if (diff / (NumRoles * NumFeatures) < threshhold) break;
     //FPrintMatrix(NewH, "NewH.txt");
     tmp = w; w = newW; newW = tmp;
