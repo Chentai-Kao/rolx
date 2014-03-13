@@ -267,23 +267,23 @@ void PrintMatrix(const TFltVV& Matrix) {
 }
 
 TFltVV CreateRandMatrix(const int XDim, const int YDim) {
-  //srand(time(NULL));
-  //TFltVV Matrix(XDim, YDim);
-  //for (int i = 0; i < XDim; ++i) {
-  //  for (int j = 0; j < YDim; ++j) {
-  //    Matrix(i, j) = (double) rand() / RAND_MAX;
-  //  }
-  //}
-  //return Matrix;
-  int seed = 7;
+  srand(time(NULL));
   TFltVV Matrix(XDim, YDim);
   for (int i = 0; i < XDim; ++i) {
     for (int j = 0; j < YDim; ++j) {
-      Matrix(i, j) = (double)seed / 10007;
-      seed = (seed * 1871) % 10007;
+      Matrix(i, j) = (double) rand() / RAND_MAX;
     }
   }
   return Matrix;
+  //int seed = 7;
+  //TFltVV Matrix(XDim, YDim);
+  //for (int i = 0; i < XDim; ++i) {
+  //  for (int j = 0; j < YDim; ++j) {
+  //    Matrix(i, j) = (double)seed / 10007;
+  //    seed = (seed * 1871) % 10007;
+  //  }
+  //}
+  //return Matrix;
 }
 
 bool FltIsZero(const TFlt f) {
@@ -292,7 +292,7 @@ bool FltIsZero(const TFlt f) {
 
 void CalcNonNegativeFactorization(const TFltVV& V, const int NumRoles,
     TFltVV& W, TFltVV& H) {
-  double threshhold = 0.005;
+  double threshhold = 0.05;
   int NumNodes = V.GetXDim();
   int NumFeatures = V.GetYDim();
   W = CreateRandMatrix(NumNodes, NumRoles);
@@ -304,6 +304,7 @@ void CalcNonNegativeFactorization(const TFltVV& V, const int NumRoles,
   TFltVV Product(NumNodes, NumFeatures);
   TFltV Sum(NumRoles);
   TFltVV *w = &W, *h = &H, *newW = &NewW, *newH = &NewH, *tmp;
+  int IterNum = 1;
   while (1) {
     TLinAlg::Multiply(*w, *h, Product);
     // update W
@@ -334,7 +335,7 @@ void CalcNonNegativeFactorization(const TFltVV& V, const int NumRoles,
     }
     //FPrintMatrix(NewW, "NewW.txt");
     // update H
-    double diff = 0;
+    //double diff = 0;
     for (int a = 0; a < NumRoles; a++) {
       for (int u = 0; u < NumFeatures; u++) {
         double SumI = 0;
@@ -344,10 +345,11 @@ void CalcNonNegativeFactorization(const TFltVV& V, const int NumRoles,
           }
         }
         newH->At(a, u) = h->At(a, u) * SumI;
-        diff += TFlt::Abs(SumI - 1);
+        //diff += TFlt::Abs(SumI - 1);
       }
     }
-    if (diff / (NumRoles * NumFeatures) < threshhold) break;
+    //printf("iteration %d, diff is %f\n", IterNum++, diff / (NumRoles * NumFeatures));
+    //if (diff / (NumRoles * NumFeatures) < threshhold) break;
     //FPrintMatrix(NewH, "NewH.txt");
     tmp = w; w = newW; newW = tmp;
     tmp = h; h = newH; newH = tmp;

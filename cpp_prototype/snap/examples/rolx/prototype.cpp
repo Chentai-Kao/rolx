@@ -22,7 +22,7 @@ int main(int argc, char* argv[]) {
   TFltVV V = ConvertFeatureToMatrix(Features, NodeIdMtxIdH); 
   printf("--finish convert feature to matrix--\n");
   //printf("--feature matrix--\n");
-  FPrintMatrix(V, "v.txt");
+  //FPrintMatrix(V, "v.txt");
 
   TFlt MnError = TFlt::Mx;
   TFltVV FinalG, FinalF;
